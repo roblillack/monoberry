@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<qnx xmlns="http://www.qnx.com/schemas/application/1.0">
+    <id>com.example.MonoBerry_Test</id>
+    <name>Hello MonoBerry!</name>
+    <versionNumber>1.0.0</versionNumber>
+    <buildId>1</buildId>
+    <description>The MonoBerry-Test application</description>
+    <author>burningsoda.com</author>
+    <authorId>gYAAgGfacAFUFI7tJsXg2e2lxY0</authorId>
+   
+    <initialWindow>
+        <systemChrome>none</systemChrome>
+        <transparent>false</transparent>
+    </initialWindow>
+    
+    <!-- We'll setup MonoBerry in app/native/monoberry -->
+    <!--  1. Tell the runtime, where the libs are -->
+    <env var="MONO_PATH" value="app/native/monoberry/lib" />
+    <!--  2. Include any needed libs -->
+    <asset path="/Developer/SDKs/MonoBerry/lib/mono/4.0/mscorlib.dll">monoberry/lib/mono/4.0/mscorlib.dll</asset>
+    <!--  3. Include the (platform dependent) runtime and use it as entry point -->
+    <asset path="/Developer/SDKs/MonoBerry/target/armle-v7/bin/mono" entry="true" type="Qnx/Elf">monoberry/bin/mono</asset>
+    <!--  4. Include our own (platform independent) code -->
+    <asset path="bin/Debug">bin</asset>
+    <!--  5. Tell the Mono runtime to run our code. -->
+    <arg>app/native/bin/helloworld.exe</arg>
+
+    <asset path="icon.png">icon.png</asset>
+    <icon>
+        <image>icon.png</image>
+    </icon>
+    
+    <!--  The splash screen that will appear when your application is launching. Should be 1024x600. -->
+    <!-- <splashscreen></splashscreen> -->
+
+    <!-- Request permission to execute native code.  Required for native applications. -->
+    <action system="true">run_native</action>
+    
+    <!--  The permissions requested by your application. -->
+    <!--  <action>access_shared</action> -->
+    <!--  <action>record_audio</action> -->
+    <!--  <action>read_geolocation</action> -->
+    <!--  <action>use_camera</action> -->
+    <!--  <action>access_internet</action> -->
+    <!--  <action>play_audio</action> -->
+    <!--  <action>post_notification</action> -->
+    <!--  <action>set_audio_volume</action> -->
+    <!--  <action>read_device_identifying_information</action> -->
+    <!--  <action>access_led_control</action> -->
+</qnx>
