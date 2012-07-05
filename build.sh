@@ -35,7 +35,7 @@ rm -rf "$DEST"
 mkdir -p "$DEST/lib"
 ln -s "$NDK/target/qnx6/$ARCH/lib/libstdc++.so.6" "$DEST/lib/libstdc++.so"
 
-cd "$BASE/mono-qnx"
+cd "$BASE/mono"
 export LDFLAGS="-L$DEST/lib -L$NDK/target/qnx6/$ARCH/lib -L$NDK/target/qnx6/$ARCH/usr/lib" 
 ./autogen.sh\
   --host=$HOST\

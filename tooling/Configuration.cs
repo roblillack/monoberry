@@ -11,6 +11,7 @@ namespace MonoBerry.Tool
 		string configFile;
 
 		public string NativeSDKPath { get; protected set; }
+		public string Location { get; protected set; }
 
 		public string ConfigFile {
 			get {
@@ -44,6 +45,16 @@ namespace MonoBerry.Tool
 			throw new Exception ("Unable to find BlackBerry Native SDK. Please speficy in " + ConfigFile);
 		}
 
+		private string FindLocation ()
+		{
+			var assemblyLoc = typeof (MonoBerry).Assembly.Location;
+			if (assemblyLoc == null || assemblyLoc.Length == 0) {
+				throw new Exception ("Unable to locate " + MonoBerry.NAME + " installation.");
+			}
+
+			return assemblyLoc;
+		}
+
 		public Configuration () : this(null) {}
 
 		public Configuration (string configFile)
@@ -66,6 +77,8 @@ namespace MonoBerry.Tool
 					foreach (var i in baseCfg.GetKeys ()) {
 						if (i.Equals ("nativesdk")) {
 							NativeSDKPath = baseCfg.Get (i);
+						} else if (i.Equals ("location")) {
+							Location = baseCfg.Get (i);
 						}
 					}
 				} catch (Exception e) {
@@ -74,6 +87,7 @@ namespace MonoBerry.Tool
 			}
 
 			NativeSDKPath = NativeSDKPath ?? FindNativeSDK ();
+			Location = Location ?? FindLocation ();
 		}
 	}
 }

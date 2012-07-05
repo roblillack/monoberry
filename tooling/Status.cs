@@ -15,7 +15,8 @@ namespace MonoBerry.Tool
 		public void Execute (MonoBerry app, string[] parameters)
 		{
 			Console.WriteLine ("{0} version: {1}", MonoBerry.NAME, MonoBerry.VERSION);
-			Console.WriteLine ("Native SDK: {0}", app.Configuration.NativeSDKPath);
+			Console.WriteLine ("Native SDK Location: {0}", app.Configuration.NativeSDKPath);
+			Console.WriteLine ("MonoBerry Installation Location: {0}", app.Configuration.Location);
 		}
 	}
 
