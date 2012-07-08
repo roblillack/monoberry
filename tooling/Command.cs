@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Generic;
 
 namespace MonoBerry.Tool
 {
-	public interface Command
+	public abstract class Command
 	{
-		string Name { get; }
-		string Description { get; }
-		void Execute(MonoBerry app, string[] parameters);
+		public abstract string Name { get; }
+		public abstract string Description { get; }
+		public abstract void Execute(MonoBerry app, IList<string> parameters);
+		public virtual bool IsVisible { get { return true; } }
 	}
 }
 

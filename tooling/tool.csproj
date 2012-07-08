@@ -47,6 +47,8 @@
     <Compile Include="Help.cs" />
     <Compile Include="Status.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Complete.cs" />
+    <Compile Include="ConfigCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

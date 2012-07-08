@@ -1,19 +1,21 @@
 using System;
+using System.Collections.Generic;
+using System.Data.Linq;
 using System.Reflection;
 
 namespace MonoBerry.Tool
 {
 	public class Help : Command
 	{
-		public string Name {
+		public override string Name {
 			get { return "help"; }
 		}
 		
-		public string Description {
+		public override string Description {
 			get { return "Displays this help screen"; }
 		}
 		
-		public void Execute (MonoBerry app, string[] parameters)
+		public override void Execute (MonoBerry app, IList<string> parameters)
 		{
 			Console.WriteLine ("{0} version {1}", MonoBerry.NAME, MonoBerry.VERSION);
 			if (MonoBerry.DESCRIPTION != null) {
@@ -27,6 +29,9 @@ namespace MonoBerry.Tool
 			Console.WriteLine ();
 			Console.WriteLine ("Available verbs:");
 			foreach (Command i in app.Commands) {
+				if (!i.IsVisible) {
+					continue;
+				}
 				Console.WriteLine ("    {0,-15} {1}", i.Name, i.Description);
 			}
 		}

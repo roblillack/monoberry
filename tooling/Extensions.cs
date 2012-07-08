@@ -24,6 +24,10 @@ namespace MonoBerry.Tool
 		
 		public static T[] Subarray<T> (this T[] me, int offset, int length = -1)
 		{
+			if (offset >= me.Length) {
+				return new T[0];
+			}
+
 			if (length == -1) {
 				length = me.Length - offset;
 			}

@@ -8,10 +8,13 @@ namespace MonoBerry.Tool
 {
     public class Configuration
 	{
-		string configFile;
+		static readonly string DEFAULT_SECTION = "core";
 
-		public string NativeSDKPath { get; protected set; }
-		public string Location { get; protected set; }
+		string configFile;
+		IniConfigSource configSource;
+
+		public string NativeSDKPath { get { return Get ("nativesdk"); } }
+		public string Location { get { return Get ("location"); } }
 
 		public string ConfigFile {
 			get {
@@ -55,12 +58,42 @@ namespace MonoBerry.Tool
 			return assemblyLoc;
 		}
 
+		private string ReadConfigSetting (string section, string key)
+		{
+			if (configSource == null || section == null || key == null) {
+				return null;
+			}
+
+			var cfg = configSource.Configs [section];
+			return cfg.GetString (key);
+		}
+
+		public string Get (string section, string key)
+		{
+			string retval = ReadConfigSetting (section, key);
+
+			if (retval == null && section == DEFAULT_SECTION) {
+				switch (key) {
+				case "location": return FindLocation ();
+				case "nativesdk": return FindNativeSDK ();
+				}
+			}
+
+			return retval;
+		}
+
+		public string Get (string absoluteKey)
+		{
+			string[] secKey = absoluteKey.Split (new char[] {'.'}, 2);
+			return Get (secKey.Length < 2 ? DEFAULT_SECTION : secKey [0], secKey [secKey.Length < 2 ? 0 : 1]);
+		}
+
 		public Configuration () : this(null) {}
 
 		public Configuration (string configFile)
 		{
 			this.configFile = configFile;
-			IniConfigSource configSource = null;
+			configSource = null;
 
 			try {
 				configSource = new IniConfigSource (ConfigFile);
@@ -69,25 +102,6 @@ namespace MonoBerry.Tool
 					Console.Error.WriteLine ("Error loading configuration file {0}", configFile);
 				}
 			}
-
-			if (configSource != null) {
-				try {
-					var baseCfg = configSource.Configs ["monoberry"];
-					
-					foreach (var i in baseCfg.GetKeys ()) {
-						if (i.Equals ("nativesdk")) {
-							NativeSDKPath = baseCfg.Get (i);
-						} else if (i.Equals ("location")) {
-							Location = baseCfg.Get (i);
-						}
-					}
-				} catch (Exception e) {
-					Console.Error.WriteLine ("Error reading configuration file: {0}", e.Message);
-				}
-			}
-
-			NativeSDKPath = NativeSDKPath ?? FindNativeSDK ();
-			Location = Location ?? FindLocation ();
 		}
 	}
 }

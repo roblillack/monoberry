@@ -36,7 +36,7 @@ namespace MonoBerry.Tool
 			}
 		}
 		
-		public void Execute (string cmd, string[] parameters) {
+		public void Execute (string cmd, List<string> parameters) {
 			foreach (var c in commands) {
 				if (cmd.Equals (c.Name.ToLower ())) {
 					c.Execute (this, parameters);
@@ -56,7 +56,10 @@ namespace MonoBerry.Tool
 		{
 			MonoBerry app = new MonoBerry (args);
 			var cmd = args.Length > 0 ? (args [0]).ToLower () : "help";
-			var parameters = args.Length > 0 ? args.Subarray (1) : new string[]{};
+			var parameters = new List<string> (args);
+			if (parameters.Count > 0) {
+				parameters.RemoveAt (0);
+			}
 			
 			app.RegisterCommands (Assembly.GetExecutingAssembly ());
 			app.Execute(cmd, parameters);
