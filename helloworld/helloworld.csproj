@@ -44,4 +44,7 @@
       <Name>libblackberry</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="monoberry-descriptor.xml" />
+  </ItemGroup>
 </Project>
