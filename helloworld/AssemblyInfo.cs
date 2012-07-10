@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 // <name>: Title of the Application on the home screen
 [assembly: AssemblyTitle("Hello MonoBerry!")]
-// <descroption>: …
+// <description>: …
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
