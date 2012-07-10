@@ -55,7 +55,13 @@ namespace MonoBerry.Tool
 				throw new Exception ("Unable to locate " + MonoBerry.NAME + " installation.");
 			}
 
-			return assemblyLoc;
+			var path = Path.GetDirectoryName (assemblyLoc);
+			if (Path.GetFileName (path) == "Debug" ||
+			    Path.GetFileName (path) == "Release") {
+				return Path.GetFullPath (Path.Combine (path, "..", "..", "..", "target"));
+			}
+
+			return path;
 		}
 
 		private string ReadConfigSetting (string section, string key)
