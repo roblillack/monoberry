@@ -6,6 +6,12 @@ using System.IO;
 
 namespace MonoBerry.Tool
 {
+	public struct Device {
+		public string Name;
+		public string Ip;
+		public string Password;
+	}
+
     public class Configuration
 	{
 		static readonly string DEFAULT_SECTION = "core";
@@ -34,6 +40,12 @@ namespace MonoBerry.Tool
 				return IsUNIX ?
 					   Environment.GetEnvironmentVariable ("HOME") :
 					   Environment.GetFolderPath (Environment.SpecialFolder.UserProfile);
+			}
+		}
+
+		public string NativeSDKHostDir {
+			get {
+				return Path.Combine (NativeSDKPath, "host", "macosx", "x86");
 			}
 		}
 
@@ -92,6 +104,25 @@ namespace MonoBerry.Tool
 		{
 			string[] secKey = absoluteKey.Split (new char[] {'.'}, 2);
 			return Get (secKey.Length < 2 ? DEFAULT_SECTION : secKey [0], secKey [secKey.Length < 2 ? 0 : 1]);
+		}
+
+		public IDictionary<string, Device> GetDevices ()
+		{
+			var devices = new Dictionary<string, Device> ();
+
+			foreach (var section in configSource.Configs) {
+				var sec = section as IConfig;
+				if (sec.Name.StartsWith ("device.")) {
+					var name = sec.Name.Substring ("device.".Length);
+					devices.Add (name, new Device {
+						Name = name,
+						Ip = sec.GetString ("ip"),
+						Password = sec.GetString ("password")
+					}); 
+				}
+			}
+
+			return devices;
 		}
 
 		public Configuration () : this(null) {}
