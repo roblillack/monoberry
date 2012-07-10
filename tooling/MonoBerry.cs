@@ -31,20 +31,45 @@ namespace MonoBerry.Tool
 				if (c == null) {
 					continue;
 				}
-				
+
+				c.Application = this;
 				commands.Add (c);
 			}
 		}
 		
-		public void Execute (string cmd, List<string> parameters) {
+		public void Execute (string cmd, List<string> parameters)
+		{
 			foreach (var c in commands) {
 				if (cmd.Equals (c.Name.ToLower ())) {
-					c.Execute (this, parameters);
+					c.Execute (parameters);
 					return;
 				}
 			}
 			
 			Console.Error.WriteLine ("Unknown command: {0}", cmd);
+		}
+
+		public void Execute (Type cmd, List<string> parameters)
+		{
+			foreach (var c in commands) {
+				if (c.GetType () == cmd) {
+					c.Execute (parameters);
+					return;
+				}
+			}
+			
+			Console.Error.WriteLine ("Unknown command: {0}", cmd);
+		}
+
+		public T GetCommand<T> ()
+		{
+			foreach (object c in commands) {
+				if (c is T) {
+					return (T)c;
+				}
+			}
+
+			throw new InvalidOperationException ();
 		}
 
 		public MonoBerry (string[] args)

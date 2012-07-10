@@ -17,7 +17,7 @@ namespace MonoBerry.Tool
 			get { return false; }
 		}
 		
-		public override void Execute (MonoBerry app, IList<string> parameters)
+		public override void Execute (IList<string> parameters)
 		{
 			// Bash complete -C pretty much is bullshit.
 			// We are not able to complete correctly without getting the WHOLE context …
@@ -25,7 +25,7 @@ namespace MonoBerry.Tool
 			string previous = parameters [parameters.Count - 1];
 
 			if (!current.StartsWith ("-") && !previous.StartsWith ("-")) {
-				foreach (var i in app.Commands) {
+				foreach (var i in Application.Commands) {
 					if (i.IsVisible && i.Name.StartsWith (current)) {
 						Console.WriteLine (i.Name);
 					}

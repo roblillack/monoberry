@@ -15,7 +15,7 @@ namespace MonoBerry.Tool
 			get { return "Displays this help screen"; }
 		}
 		
-		public override void Execute (MonoBerry app, IList<string> parameters)
+		public override void Execute (IList<string> parameters)
 		{
 			Console.WriteLine ("{0} version {1}", MonoBerry.NAME, MonoBerry.VERSION);
 			if (MonoBerry.DESCRIPTION != null) {
@@ -28,7 +28,7 @@ namespace MonoBerry.Tool
 			Console.WriteLine ("Usage: {0} <verb> [parameters]", MonoBerry.COMMAND);
 			Console.WriteLine ();
 			Console.WriteLine ("Available verbs:");
-			foreach (Command i in app.Commands) {
+			foreach (Command i in Application.Commands) {
 				if (!i.IsVisible) {
 					continue;
 				}

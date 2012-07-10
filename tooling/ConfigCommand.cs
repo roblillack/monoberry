@@ -15,10 +15,10 @@ namespace MonoBerry.Tool
 			get { return "Display MonoBerry settings."; }
 		}
 		
-		public override void Execute (MonoBerry app, IList<string> parameters)
+		public override void Execute (IList<string> parameters)
 		{
 			if (parameters.Count >= 1) {
-				Console.WriteLine (app.Configuration.Get (parameters [0]));
+				Console.WriteLine (Application.Configuration.Get (parameters [0]));
 			}
 		}
 	}

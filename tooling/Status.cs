@@ -13,11 +13,11 @@ namespace MonoBerry.Tool
 			get { return "Display information about the build environment."; }
 		}
 		
-		public override void Execute (MonoBerry app, IList<string> parameters)
+		public override void Execute (IList<string> parameters)
 		{
 			Console.WriteLine ("{0} version: {1}", MonoBerry.NAME, MonoBerry.VERSION);
-			Console.WriteLine ("Native SDK Location: {0}", app.Configuration.NativeSDKPath);
-			Console.WriteLine ("MonoBerry Installation Location: {0}", app.Configuration.Location);
+			Console.WriteLine ("Native SDK Location: {0}", Application.Configuration.NativeSDKPath);
+			Console.WriteLine ("MonoBerry Installation Location: {0}", Application.Configuration.Location);
 		}
 	}
 
