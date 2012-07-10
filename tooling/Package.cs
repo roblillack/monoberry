@@ -104,8 +104,8 @@ namespace MonoBerry.Tool
 					string path = null;
 
 					if (Path.GetFileName (i.Location) == "mscorlib.dll") {
-						Console.WriteLine ("Runtime: {0}", i.ImageRuntimeVersion);
-						path = Path.Combine (Application.Configuration.Location, "lib", "mono", "4.0", "mscorlib.dll");						                  
+						path = Path.Combine (Application.Configuration.Location, "lib", "mono",
+							                     i.ImageRuntimeVersion.StartsWith ("v2.") ? "2.0" : "4.0", "mscorlib.dll");						                  
 					}
 
 					xml.WriteStartElement ("asset");
