@@ -87,8 +87,10 @@ namespace MonoBerry.Tool
 				// We work around a problem with the NDK here
 				xml.WriteElementString ("buildId", Math.Abs ((short)assembly.GetName ().Version.Revision).ToString ());
 
-				xml.WriteElementString ("author", Application.Configuration.Get ("debugtoken", "author"));
-				xml.WriteElementString ("authorId", Application.Configuration.Get ("debugtoken", "token"));
+				if (devMode) {
+					xml.WriteElementString ("author", Application.Configuration.Get ("debugtoken", "author"));
+					xml.WriteElementString ("authorId", Application.Configuration.Get ("debugtoken", "token"));
+				}
 
 				xml.WriteStartElement ("initialWindow");
 				xml.WriteElementString ("systemChrome", "none");
