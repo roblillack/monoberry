@@ -71,7 +71,7 @@ namespace MonoBerry.Tool
 			}
 
 			var cfg = configSource.Configs [section];
-			return cfg.GetString (key);
+			return cfg == null ? null : cfg.GetString (key);
 		}
 
 		public string Get (string section, string key)
