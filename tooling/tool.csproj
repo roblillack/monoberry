@@ -38,6 +38,7 @@
     <Reference Include="Nini">
       <HintPath>..\lib\nini\Bin\DotNet\2.0\Release\Nini.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -49,6 +50,15 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Complete.cs" />
     <Compile Include="ConfigCommand.cs" />
+    <Compile Include="Package.cs" />
+    <Compile Include="Devices.cs" />
+    <Compile Include="Debug.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\libblackberry\libblackberry.csproj">
+      <Project>{64023C1F-A532-4ED6-9CBA-95AE61B5B9DE}</Project>
+      <Name>libblackberry</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
