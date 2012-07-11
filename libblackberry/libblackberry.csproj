@@ -36,6 +36,7 @@
     <Compile Include="ApplicationDescriptor.cs" />
     <Compile Include="PlatformServices.cs" />
     <Compile Include="Screen.cs" />
+    <Compile Include="Camera.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
