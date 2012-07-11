@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]
 
 // <id>: Unique Identifier of the Application
-[assembly: ApplicationIdentifier ("com.example.MonoBerry_Test")]
+[assembly: ApplicationIdentifier ("com.burningsoda.monoberry.helloworld")]
 // <action> …
 [assembly: RequestedPermissions (Action.AccessInternet, Action.UseCamera)]
 
