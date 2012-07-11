@@ -11,6 +11,11 @@ namespace BlackBerry.ApplicationDescriptor
 		{
 			Identifier = val;
 		}
+
+		public override string ToString ()
+		{
+			return Identifier;
+		}
 	}
 
 	public enum Action {

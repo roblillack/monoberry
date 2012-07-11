@@ -50,6 +50,18 @@ namespace MonoBerry.Tool
 			return (T)null;
 		}
 
+		private static string GetApplicationIdentifier (Assembly assembly)
+		{
+			foreach (var i in assembly.GetCustomAttributes (false)) {
+				if (i.GetType ().Namespace == "BlackBerry.ApplicationDescriptor" &&
+				    i.GetType ().Name == "ApplicationIdentifierAttribute") {
+					return i.ToString ();
+				}
+			}
+
+			return null;
+		}
+
 		public void CreateAppDescriptor (string assemblyFile, bool devMode = true)
 		{
 			var assembly = Assembly.LoadFile (assemblyFile);
@@ -64,8 +76,8 @@ namespace MonoBerry.Tool
 				Console.WriteLine ("- Location: {0}", i.Location);
 			}
 
-			var id = GetAttribute<BlackBerry.ApplicationDescriptor.ApplicationIdentifierAttribute> (assembly);
-			if (id == null || id.Identifier.Length < 10) {
+			var id = GetApplicationIdentifier (assembly);
+			if (id == null || id.Length < 10) {
 				Console.Error.WriteLine ("Application Identifier not specified or too short.");
 				return;
 			}
@@ -80,7 +92,7 @@ namespace MonoBerry.Tool
 				xml.Formatting = Formatting.Indented;
 				xml.WriteStartDocument ();
 				xml.WriteStartElement ("qnx", "http://www.qnx.com/schemas/application/1.0");
-				xml.WriteElementString ("id", id.Identifier);
+				xml.WriteElementString ("id", id);
 				xml.WriteElementString ("name", name.Title);
 				xml.WriteElementString ("versionNumber", String.Format("{0}.{1}.{2}", assembly.GetName ().Version.Major, assembly.GetName ().Version.Minor, assembly.GetName ().Version.Build));
 

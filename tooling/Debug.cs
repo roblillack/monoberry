@@ -46,6 +46,7 @@ namespace MonoBerry.Tool
 			} else if (devs.Count == 0) {
 				throw new Error ("No devices configured.");
 			} else {
+				// TODO: Not implemented.
 				throw new Error ("Multiple devices configured. Please specify using --device!");
 			}
 		}
