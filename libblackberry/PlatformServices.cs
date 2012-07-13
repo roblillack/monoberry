@@ -110,6 +110,7 @@ namespace BlackBerry
 
 		static IDictionary<IntPtr, Dialog> dialogs = new Dictionary<IntPtr, Dialog> ();
 		static bool initialized = false;
+		static int eventDomain;
 
 		static void Initialize ()
 		{
@@ -118,7 +119,8 @@ namespace BlackBerry
 			}
 			PlatformServices.Initialize ();
 			dialog_request_events (0);
-			PlatformServices.AddEventHandler (dialog_get_domain (), HandleEvent);
+			eventDomain = dialog_get_domain ();
+			PlatformServices.AddEventHandler (eventDomain, HandleEvent);
 			initialized = true;
 		}
 
@@ -161,11 +163,15 @@ namespace BlackBerry
 			Message = message;
 		}
 
-		public static Dialog Show (string title, string message)
+		public static void Alert (string title, string message, params Button[] buttons)
 		{
-			var a = new Dialog (title, message);
-			a.Show ();
-			return a;
+			using (var a = new Dialog (title, message)) {
+				foreach (var b in buttons) {
+					a.AddButton (b);
+				}
+				a.Show ();
+				HandleEvent (PlatformServices.NextDomainEvent (eventDomain));
+			}
 		}
 
 		public void AddButton (Button button) {
@@ -303,6 +309,17 @@ namespace BlackBerry
 			}
 
 			return null;
+		}
+
+		internal static IntPtr NextDomainEvent (int domain)
+		{
+			while (true) {
+				IntPtr handle;
+				bps_get_event (out handle, -1);
+				if (domain == bps_event_get_domain (handle)) {
+					return handle;
+				}
+			}
 		}
 
 		public static void Run ()
