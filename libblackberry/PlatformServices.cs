@@ -4,6 +4,75 @@ using System.Runtime.InteropServices;
 
 namespace BlackBerry
 {
+	public class Button {
+		[DllImport ("bps")]
+		static extern int dialog_update_button (IntPtr dialog, int index, string label, bool enabled, string id, bool visible);
+
+		internal string id = Guid.NewGuid ().ToString ();
+		internal bool enabled = true;
+		internal string label = null;
+		internal bool visible = true;
+		public Action OnClick { get; set; }
+		public Dialog Dialog { get; internal set; }
+
+		public bool IsEnabled {
+			get {
+				return enabled;
+			}
+			set {
+				enabled = value;
+				if (Dialog != null) {
+					dialog_update_button (Dialog.handle, Index, null, enabled, null, visible);
+				}
+			}
+		}
+
+		public bool IsVisible {
+			get {
+				return visible;
+			}
+			set {
+				visible = value;
+				if (Dialog != null) {
+					dialog_update_button (Dialog.handle, Index, null, enabled, null, visible);
+				}
+			}
+		}
+
+		public string Label {
+			get {
+				return label;
+			}
+			set {
+				label = value;
+				if (Dialog != null) {
+					dialog_update_button (Dialog.handle, Index, label, enabled, null, visible);
+				}
+			}
+		}
+
+		public int Index {
+			get {
+				for (int i = 0; i < Dialog.buttons.Count; i++) {
+					if (this == Dialog.buttons [i]) {
+						return i;
+					}
+				}
+				return -1;
+			}
+		}
+
+		public Button (string lbl)
+		{
+			label = lbl;
+		}
+
+		public Button (string lbl, Action onClick) : this (lbl)
+		{
+			OnClick = onClick;
+		}
+	}
+
 	public class Dialog : IDisposable
 	{
 		[DllImport ("bps")]
@@ -24,21 +93,67 @@ namespace BlackBerry
 		[DllImport ("bps")]
 		static extern int dialog_update (IntPtr dialog);
 
-		static IDictionary<IntPtr, Dialog> dialogs = new Dictionary<IntPtr, Dialog> ();
+		[DllImport ("bps")]
+		static extern int dialog_add_button (IntPtr dialog, string label, bool enabled, string id, bool visible);
 
-		internal Dialog FindDialog (IntPtr handle) {
-			return dialogs [handle];
+		[DllImport ("bps")]
+		static extern int dialog_request_events (int flags);
+
+		[DllImport ("bps")]
+		static extern int dialog_get_domain ();
+
+		[DllImport ("bps")]
+		static extern IntPtr dialog_event_get_dialog_instance (IntPtr handle);
+
+		[DllImport ("bps")]
+		static extern int dialog_event_get_selected_index(IntPtr handle);
+
+		static IDictionary<IntPtr, Dialog> dialogs = new Dictionary<IntPtr, Dialog> ();
+		static bool initialized = false;
+
+		static void Initialize ()
+		{
+			if (initialized) {
+				return;
+			}
+			PlatformServices.Initialize ();
+			dialog_request_events (0);
+			PlatformServices.AddEventHandler (dialog_get_domain (), HandleEvent);
+			initialized = true;
 		}
+
+		static void HandleEvent (IntPtr eventHandle)
+		{
+			IntPtr dialogHandle = dialog_event_get_dialog_instance (eventHandle);
+			int btnIndex = dialog_event_get_selected_index (eventHandle);
+			if (!dialogs.ContainsKey (dialogHandle)) {
+				throw new ArgumentException ("Dialog not found.");
+			}
+
+			var dlg = dialogs [dialogHandle];
+			dlg.Visible = false;
+			if (btnIndex < 0 || btnIndex >= dlg.buttons.Count) {
+				throw new ArgumentException ("Button not found.");
+			}
+
+			var btn = dlg.buttons [btnIndex];
+			if (btn.OnClick != null) {
+				btn.OnClick ();
+			}
+		}
+			                                 
 
 		public bool Visible { get; set; }
 
-		IntPtr handle;
+		internal IntPtr handle;
 		public Dialog ()
 		{
-			PlatformServices.RequestDialogEvents ();
+			Initialize ();
 			dialog_create_alert (out handle);
 			dialogs.Add (handle, this);
 		}
+
+		internal IList<Button> buttons = new List<Button> ();
 
 		public Dialog (string title, string message) : this ()
 		{
@@ -51,6 +166,15 @@ namespace BlackBerry
 			var a = new Dialog (title, message);
 			a.Show ();
 			return a;
+		}
+
+		public void AddButton (Button button) {
+			buttons.Add (button);
+			button.Dialog = this;
+			dialog_add_button (handle, button.label, button.enabled, button.id, button.visible);
+			if (Visible) {
+				dialog_update (handle);
+			}
 		}
 
 		public string Title {
@@ -87,9 +211,9 @@ namespace BlackBerry
 
 		public void Dispose ()
 		{
-			dialog_destroy (handle);
-			Visible = false;
 			dialogs.Remove (handle);
+			Visible = false;
+			dialog_destroy (handle);
 		}
 	}
 
@@ -115,21 +239,7 @@ namespace BlackBerry
 		}
 	}
 
-	public class DialogEvent : Event
-	{
-		[DllImport ("bps")]
-		static extern IntPtr dialog_event_get_dialog_instance (IntPtr handle);
-
-		internal DialogEvent (IntPtr h) : base (h) {}
-
-		public Dialog Dialog {
-			get {
-				return Dialog.FindDialog (dialog_event_get_dialog_instance (handle));
-			}
-		}
-	}
-
-	public class PlatformServices : IDisposable
+	public class PlatformServices
 	{
 		[DllImport ("bps")]
 		static extern int bps_initialize ();
@@ -141,21 +251,15 @@ namespace BlackBerry
 		static extern void bps_get_event (out IntPtr handle, int timeout_ms);
 
 		[DllImport ("bps")]
-		static extern int dialog_request_events (int flags);
-
-		[DllImport ("bps")]
-		static extern int dialog_get_domain ();
-
-		[DllImport ("bps")]
 		static extern int bps_event_get_domain (IntPtr handle);
 
 		static bool initialized = false;
-		static bool dialogEventsRequested = false;
-
-		public PlatformServices ()
-		{
-			Initialize ();
+		public static bool IsRunning {
+			get;
+			private set;
 		}
+
+		static IDictionary<int, Action<IntPtr>> eventHandlers = new Dictionary<int, Action<IntPtr>> ();
 
 		public static void Initialize ()
 		{
@@ -165,39 +269,56 @@ namespace BlackBerry
 
 			bps_initialize ();
 			initialized = true;
+			IsRunning = true;
 		}
 
-		public static void RequestDialogEvents ()
+		public static void AddEventHandler (int domain, Action<IntPtr> handler)
 		{
-			if (dialogEventsRequested) {
-				return;
-			}
-
-			Initialize ();
-			dialog_request_events (0);
-			dialogEventsRequested = true;
+			eventHandlers.Add (domain, handler);
 		}
 
-		public Event NextEvent ()
+		public static Event NextEvent ()
 		{
 			return NextEvent (-1);
 		}
 
-		public Event NextEvent (int timeoutMillis)
+		public static Event NextEvent (int timeoutMillis)
 		{
 			IntPtr handle;
-			bps_get_event (out handle, timeoutMillis);
+			Action<IntPtr> handler = null;
 
-			if (dialogEventsRequested && bps_event_get_domain (handle) == dialog_get_domain ()) {
-				return new DialogEvent (handle);
+			IsRunning = true;
+
+			while (IsRunning) {
+				bps_get_event (out handle, timeoutMillis);
+				if (handle == IntPtr.Zero) {
+					break;
+				}
+				var domain = bps_event_get_domain (handle);
+				if (!eventHandlers.ContainsKey (domain)) {
+					return new Event (handle);
+				}
+				handler = eventHandlers [domain];
+				handler (handle);
 			}
 
-			return new Event (handle);
+			return null;
 		}
 
-		public void Dispose ()
+		public static void Run ()
+		{
+			while (NextEvent () != null) {}
+		}
+
+		public static void Stop ()
+		{
+			IsRunning = false;
+		}
+
+		public static void Shutdown (int code = 0)
 		{
 			bps_shutdown ();
+			System.Environment.Exit (code);
 		}
 	}
 }
