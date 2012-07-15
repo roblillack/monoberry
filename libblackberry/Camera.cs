@@ -45,6 +45,25 @@ namespace BlackBerry
 			Rear
 		}
 
+		public enum ImageProperty : int {
+			CAMERA_IMGPROP_END = -1,
+			CAMERA_IMGPROP_FORMAT = 0,
+			CAMERA_IMGPROP_WIDTH,
+			CAMERA_IMGPROP_HEIGHT,
+			CAMERA_IMGPROP_FRAMERATE,
+			CAMERA_IMGPROP_BITRATE,
+			CAMERA_IMGPROP_KEYFRAMEINTERVAL,
+			CAMERA_IMGPROP_ROTATION,
+			CAMERA_IMGPROP_STABILIZATION,
+			CAMERA_IMGPROP_ZOOMFACTOR,
+			CAMERA_IMGPROP_HWOVERLAY,
+			CAMERA_IMGPROP_JPEGQFACTOR,
+			CAMERA_IMGPROP_WIN_GROUPID,
+			CAMERA_IMGPROP_WIN_ID,
+			CAMERA_IMGPROP_BURSTMODE,
+			CAMERA_IMGPROP_BURSTDIVISOR,
+			CAMERA_IMGPROP_SLICESIZE
+		}
 
 		[DllImport ("camapi")]
 		private static extern Error camera_close (IntPtr handle);
@@ -65,6 +84,8 @@ namespace BlackBerry
 		                                               IntPtr imageCallback,
 		                                               IntPtr arg,
 		                                               bool wait);
+		[DllImport ("camapi")]
+		static extern Error _camera_set_photovf_property (IntPtr handle, ImageProperty property, ref string value, ImageProperty end);
 
 		private IntPtr handle;
 		public Camera (Unit unit, Mode mode)
@@ -74,6 +95,11 @@ namespace BlackBerry
 
 		public void TakePhoto ()
 		{
+			string bla = "bla";
+			HandleError (_camera_set_photovf_property (handle,
+			                                           ImageProperty.CAMERA_IMGPROP_WIN_ID,
+			                                           ref bla,
+			                                           ImageProperty.CAMERA_IMGPROP_END));
 			HandleError (camera_start_photo_viewfinder (handle, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero));
 			System.Threading.Thread.Sleep (3000);
 			HandleError (camera_take_photo (handle, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, true));

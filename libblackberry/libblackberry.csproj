@@ -37,6 +37,11 @@
     <Compile Include="PlatformServices.cs" />
     <Compile Include="Screen.cs" />
     <Compile Include="Camera.cs" />
+    <Compile Include="dialog\Button.cs" />
+    <Compile Include="dialog\Dialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="dialog\" />
+  </ItemGroup>
 </Project>
