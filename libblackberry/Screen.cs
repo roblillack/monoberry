@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Runtime.InteropServices;
 
 namespace BlackBerry.Screen
@@ -248,6 +249,9 @@ namespace BlackBerry.Screen
 		static extern int screen_create_window_buffers (IntPtr win, int count);
 
 		[DllImport ("screen")]
+		static extern int screen_set_window_property_cv (IntPtr win, Property pname, int len, byte[] param);
+
+		[DllImport ("screen")]
 		static extern int screen_post_window (IntPtr win, IntPtr buffer, int rect_count, [In] int[] dirty_rects, Flushing flushing);
 
 		Context context;
@@ -316,6 +320,13 @@ namespace BlackBerry.Screen
 				var rect = new int [2];
 				screen_get_window_property_iv (handle, Property.SCREEN_PROPERTY_BUFFER_SIZE, rect);
 				return rect [1];
+			}
+		}
+
+		public string Identifier {
+			set {
+				byte[] chars = Encoding.UTF8.GetBytes (value);
+				screen_set_window_property_cv(handle, Property.SCREEN_PROPERTY_ID_STRING, chars.Length, chars);
 			}
 		}
 
