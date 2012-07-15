@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Runtime.InteropServices;
+
+namespace BlackBerry.Screen
+{
+
+	public enum BlitAttribute : int {
+		SCREEN_BLIT_END = 0,
+		SCREEN_BLIT_SOURCE_X = 1,
+		SCREEN_BLIT_SOURCE_Y = 2,
+		SCREEN_BLIT_SOURCE_WIDTH = 3,
+		SCREEN_BLIT_SOURCE_HEIGHT = 4,
+		SCREEN_BLIT_DESTINATION_X = 5,
+		SCREEN_BLIT_DESTINATION_Y = 6,
+		SCREEN_BLIT_DESTINATION_WIDTH = 7,
+		SCREEN_BLIT_DESTINATION_HEIGHT = 8,
+		SCREEN_BLIT_GLOBAL_ALPHA = 9,
+		SCREEN_BLIT_TRANSPARENCY = 10,
+		SCREEN_BLIT_SCALE_QUALITY = 11,
+		SCREEN_BLIT_COLOR = 12
+	}
+
+}

@@ -35,13 +35,22 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="ApplicationDescriptor.cs" />
     <Compile Include="PlatformServices.cs" />
-    <Compile Include="Screen.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="dialog\Button.cs" />
     <Compile Include="dialog\Dialog.cs" />
+    <Compile Include="screen\Context.cs" />
+    <Compile Include="screen\Buffer.cs" />
+    <Compile Include="screen\Window.cs" />
+    <Compile Include="screen\Property.cs" />
+    <Compile Include="screen\ContextType.cs" />
+    <Compile Include="screen\Usage.cs" />
+    <Compile Include="screen\WindowType.cs" />
+    <Compile Include="screen\BlitAttribute.cs" />
+    <Compile Include="screen\Flushing.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="dialog\" />
+    <Folder Include="screen\" />
   </ItemGroup>
 </Project>
