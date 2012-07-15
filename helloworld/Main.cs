@@ -12,6 +12,7 @@ namespace helloworld
 			using (var ctx = new Context ())
 			using (var win = new Window (ctx, WindowType.SCREEN_APPLICATION_WINDOW)) {
 				win.AddBuffers (10);
+				win.Identifier = "bla";
 				var r = new Random();
 				foreach (var b in win.Buffers) {
 					b.Fill (r.Next ());
@@ -43,9 +44,9 @@ namespace helloworld
 		public static void Cam ()
 		{
 			using (var c = new Camera (Camera.Unit.Front, Camera.Mode.RW)) {
-				Dialog.Alert ("OMFG", "I got camera!1!1", new Button ("Ok!"));
 				c.TakePhoto ();
 			}
+			Dialog.Alert ("OMFG", "I got camera!1!1", new Button ("Ok!"));
 		}
 	}
 }
