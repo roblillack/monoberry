@@ -123,6 +123,12 @@ namespace BlackBerry.Screen
 			}
 		}
 
+		public Window (Context ctx, IntPtr hnd)
+		{
+			context = ctx;
+			handle = hnd;
+		}
+
 		public void Dispose ()
 		{
 			if (screen_destroy_window (handle) != 0) {

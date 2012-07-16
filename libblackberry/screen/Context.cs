@@ -15,23 +15,64 @@ namespace BlackBerry.Screen
 		[DllImport ("screen")]
 		static extern int screen_destroy_context (IntPtr ctx);
 
+		[DllImport ("bps")]
+		static extern int screen_request_events (IntPtr ctx);
+
+		[DllImport ("bps")]
+		static extern int screen_stop_events (IntPtr ctx);
+
+		[DllImport ("screen")]
+		static extern int screen_get_domain ();
+
 		IntPtr handle;
 		public IntPtr Handle { get { return handle; } }
+		private int eventDomain;
+
+		public Action<Window> OnCloseWindow { get; set; }
+		public Action<Window> OnCreateWindow { get; set; }
 
 		public Context()
 		{
+			PlatformServices.Initialize ();
 			if (screen_create_context (out handle, ContextType.SCREEN_APPLICATION_CONTEXT) != 0) {
-				// TODO: read errno
+				// TODO: read errno to describe problem
 				throw new Exception ("Unable to create screen context");
 			}
+			screen_request_events (handle);
+			eventDomain = screen_get_domain ();
+			PlatformServices.AddEventHandler (eventDomain, HandleEvent);
+		}
+
+		void HandleEvent (IntPtr eventHandle)
+		{
+			var e = ScreenEvent.FromEventHandle (eventHandle);
+
+			switch (e.Type) {
+			case EventType.SCREEN_EVENT_CLOSE:
+				if (OnCloseWindow != null) {
+					OnCloseWindow (new Window (this, e.GetIntPtrProperty (Property.SCREEN_PROPERTY_WINDOW)));
+				}
+				break;
+			case EventType.SCREEN_EVENT_CREATE:
+				if (OnCreateWindow != null) {
+					OnCreateWindow (new Window (this, e.GetIntPtrProperty (Property.SCREEN_PROPERTY_WINDOW)));
+				}
+				break;
+			//case EventType.SCREEN_EVENT_MTOUCH_TOUCH:
+			//case EventType.SCREEN_EVENT_MTOUCH_MOVE:
+			//case EventType.SCREEN_EVENT_MTOUCH_RELEASE:
+			default:
+				Console.WriteLine ("UNHANDLED SCREEN EVENT, TYPE: {0}", e.Type);
+				break;
+			}
+
 		}
 
 		public void Dispose ()
 		{
-			if (screen_destroy_context (handle) != 0) {
-				// TODO: read errno
-				throw new Exception ("Unable to destroy screen context");
-			}
+			PlatformServices.RemoveEventHandler (eventDomain);
+			screen_stop_events (handle);
+			screen_destroy_context (handle);
 		}
 	}
 	

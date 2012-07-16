@@ -9,6 +9,7 @@ namespace helloworld
 	{
 		public static void Main (string[] args)
 		{
+			using (var nav = new Navigator ())
 			using (var ctx = new Context ())
 			using (var win = new Window (ctx, WindowType.SCREEN_APPLICATION_WINDOW)) {
 				win.AddBuffers (10);
@@ -19,12 +20,18 @@ namespace helloworld
 					win.Render (b);
 					System.Threading.Thread.Sleep (200);
 				}
+				//nav.AddUri ("", "Browser", "default", "http://google.com/");
+				//nav.AddUri ("", "Messages", "default", "messages://");
+				//return;
 
 				var run = true;
 				while (run) {
 					Dialog.Alert ("CLOSE ME!", "jpo1jo1j1oj1oj1",
-					              new Button ("Timer", Timer),
-					              new Button ("Camera", Cam),
+					              //new Button ("Timer", Timer),
+					              //new Button ("Camera", Cam),
+					              //new Button ("Messages", () => nav.Invoke ("messages://")),
+					              new Button ("Badge", () => nav.HasBadge = true),
+					              new Button ("Browser", () => nav.Invoke ("http://google.com/")),
 					              new Button ("Close", () => run = false));
 				}
 			}

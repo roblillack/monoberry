@@ -4,28 +4,6 @@ using System.Runtime.InteropServices;
 
 namespace BlackBerry
 {
-	public class Event
-	{
-		[DllImport ("bps")]
-		static extern uint bps_event_get_code (IntPtr handle);
-
-		[DllImport ("bps")]
-		static extern IntPtr bps_event_get_payload (IntPtr handle);
-
-		protected IntPtr handle;
-
-		internal Event (IntPtr h)
-		{
-			handle = h;
-		}
-
-		public uint Code {
-			get {
-				return bps_event_get_code (handle);
-			}
-		}
-	}
-
 	public class PlatformServices
 	{
 		[DllImport ("bps")]
@@ -64,6 +42,11 @@ namespace BlackBerry
 			eventHandlers.Add (domain, handler);
 		}
 
+		public static void RemoveEventHandler (int domain)
+		{
+			eventHandlers.Remove (domain);
+		}
+
 		public static Event NextEvent ()
 		{
 			return NextEvent (-1);
@@ -97,7 +80,11 @@ namespace BlackBerry
 			while (true) {
 				IntPtr handle;
 				bps_get_event (out handle, -1);
-				if (domain == bps_event_get_domain (handle)) {
+				var evDomain = bps_event_get_domain (handle);
+				if (eventHandlers.ContainsKey (evDomain)) {
+					eventHandlers [evDomain] (handle);
+				}
+				if (domain == evDomain) {
 					return handle;
 				}
 			}

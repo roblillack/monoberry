@@ -47,6 +47,10 @@
     <Compile Include="screen\WindowType.cs" />
     <Compile Include="screen\BlitAttribute.cs" />
     <Compile Include="screen\Flushing.cs" />
+    <Compile Include="screen\ScreenEvent.cs" />
+    <Compile Include="screen\EventType.cs" />
+    <Compile Include="Navigator.cs" />
+    <Compile Include="Event.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
