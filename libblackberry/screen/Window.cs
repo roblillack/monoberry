@@ -49,6 +49,15 @@ namespace BlackBerry.Screen
 			}
 		}
 
+		public bool IsVisible {
+			get {
+				return GetIntProperty (Property.SCREEN_PROPERTY_VISIBLE) == 1;
+			}
+			set {
+				SetIntProperty (Property.SCREEN_PROPERTY_VISIBLE, value ? 1 : 0);
+			}
+		}
+
 		public int GetIntProperty (Property p)
 		{
 			var result = new int[] { 0 };
