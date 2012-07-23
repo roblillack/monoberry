@@ -32,7 +32,7 @@ namespace BlackBerry.Screen
 		[DllImport ("screen")]
 		static extern int screen_set_window_property_cv (IntPtr win, Property pname, int len, byte[] param);
 
-		[DllImport ("screen")]
+		[DllImport ("screen", SetLastError = true)]
 		static extern int screen_post_window (IntPtr win, IntPtr buffer, int rect_count, [In] int[] dirty_rects, Flushing flushing);
 
 		Context context;
@@ -76,7 +76,9 @@ namespace BlackBerry.Screen
 
 		public void AddBuffers (int count)
 		{
-			screen_create_window_buffers (handle, count);
+			if (screen_create_window_buffers (handle, count) != 0) {
+				throw new Exception ("Unmable to create buffers.");
+			}
 		}
 
 		public void AddBuffer ()
@@ -127,7 +129,9 @@ namespace BlackBerry.Screen
 		public void Render (Buffer buffer)
 		{
 			var dirty = new int[] { 0, 0, Width, Height };
-			screen_post_window (handle, buffer.buffer, 1, dirty, Flushing.SCREEN_WAIT_IDLE);
+			if (screen_post_window (handle, buffer.buffer, 1, dirty, Flushing.SCREEN_WAIT_IDLE) != 0) {
+				throw new Exception ("Unable to render buffer to window!! ");// + Mono.Unix.Native.Stdlib.GetLastError ().ToString ());
+			}
 		}
 
 		public Window (Context ctx, WindowType type = WindowType.SCREEN_APPLICATION_WINDOW)
