@@ -62,6 +62,18 @@ namespace MonoBerry.Tool
 			return null;
 		}
 
+		private static string GetPlatformVersion (Assembly assembly)
+		{
+			foreach (var i in assembly.GetCustomAttributes (false)) {
+				if (i.GetType ().Namespace == "BlackBerry.ApplicationDescriptor" &&
+				    i.GetType ().Name == "PlatformVersionAttribute") {
+					return i.ToString ();
+				}
+			}
+
+			return null;
+		}
+
 		public void CreateAppDescriptor (string assemblyFile, bool devMode = true)
 		{
 			var assembly = Assembly.LoadFile (assemblyFile);
@@ -88,6 +100,8 @@ namespace MonoBerry.Tool
 				return;
 			}
 
+			var platform = GetPlatformVersion (assembly) ?? "2.0.0.0";
+
 			using (var xml = new XmlTextWriter ("app-descriptor.xml", Encoding.UTF8)) {
 				xml.Formatting = Formatting.Indented;
 				xml.WriteStartDocument ();
@@ -95,6 +109,7 @@ namespace MonoBerry.Tool
 				xml.WriteElementString ("id", id);
 				xml.WriteElementString ("name", name.Title);
 				xml.WriteElementString ("versionNumber", String.Format("{0}.{1}.{2}", assembly.GetName ().Version.Major, assembly.GetName ().Version.Minor, assembly.GetName ().Version.Build));
+				xml.WriteElementString ("platformVersion", platform);
 
 				// We work around a problem with the NDK here
 				xml.WriteElementString ("buildId", Math.Abs ((short)assembly.GetName ().Version.Revision).ToString ());

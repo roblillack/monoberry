@@ -41,5 +41,20 @@ namespace BlackBerry.ApplicationDescriptor
 			Actions = new HashSet<Action> (actions);
 		}
 	}
+
+	public class PlatformVersionAttribute : Attribute
+	{
+		public string Version { get; protected set; }
+
+		public PlatformVersionAttribute (string val)
+		{
+			Version = val;
+		}
+
+		public override string ToString ()
+		{
+			return Version;
+		}
+	}
 }
 
