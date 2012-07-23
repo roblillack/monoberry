@@ -12,6 +12,9 @@ namespace BlackBerry.Screen
 		static extern int screen_create_window_type (out IntPtr pwin, IntPtr ctx, WindowType type);
 
 		[DllImport ("screen")]
+		static extern int screen_create_window_group (IntPtr win, string name);
+
+		[DllImport ("screen")]
 		static extern int screen_destroy_window (IntPtr win);
 
 		[DllImport ("screen")]
@@ -114,12 +117,18 @@ namespace BlackBerry.Screen
 			screen_post_window (handle, buffer.buffer, 1, dirty, Flushing.SCREEN_WAIT_IDLE);
 		}
 
-		public Window (Context ctx, WindowType type)
+		public Window (Context ctx, WindowType type = WindowType.SCREEN_APPLICATION_WINDOW)
 		{
 			context = ctx;
 			if (screen_create_window_type (out handle, ctx.Handle, type) != 0) {
-				// TODO: read errno
 				throw new Exception ("Unable to create window");
+			}
+			if (type != WindowType.SCREEN_APPLICATION_WINDOW &&
+			    type != WindowType.SCREEN_CHILD_WINDOW) {
+				return;
+			}
+			if (screen_create_window_group (handle, handle.ToString ()) != 0) {
+				throw new Exception ("Unable to create window group");
 			}
 		}
 
