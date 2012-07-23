@@ -61,13 +61,17 @@ namespace BlackBerry.Screen
 		public int GetIntProperty (Property p)
 		{
 			var result = new int[] { 0 };
-			screen_get_window_property_iv (handle, p, result);
+			if (screen_get_window_property_iv (handle, p, result) != 0) {
+				throw new Exception ("Unable to read window property " + p);
+			}
 			return result [0];
 		}
 
 		public void SetIntProperty (Property p, int val)
 		{
-			screen_set_window_property_iv (handle, Property.SCREEN_PROPERTY_USAGE, ref val);
+			if (screen_set_window_property_iv (handle, p, ref val) != 0) {
+				throw new Exception ("Unable to set window property " + p);
+			}
 		}
 
 		public void AddBuffers (int count)
