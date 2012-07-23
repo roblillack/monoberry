@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace MonoBerry.Tool
@@ -32,7 +33,18 @@ namespace MonoBerry.Tool
 			                         "app-descriptor.xml",
 			                         device.Ip,
 			                         device.Password);
-			Console.WriteLine (cmd);
+			Run (cmd);
+		}
+
+		private static void Run (string cmd)
+		{
+			try {
+				using (Process proc = Process.Start ("/bin/sh", String.Format ("-c '{0}'", cmd))) {
+					proc.WaitForExit();
+				}
+			} catch (Exception e) {
+				throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+			}
 		}
 
 		private Device GetDevice (IList<string> parameters)
