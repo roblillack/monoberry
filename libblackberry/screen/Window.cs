@@ -129,8 +129,9 @@ namespace BlackBerry.Screen
 		public void Render (Buffer buffer)
 		{
 			var dirty = new int[] { 0, 0, Width, Height };
-			if (screen_post_window (handle, buffer.buffer, 1, dirty, Flushing.SCREEN_WAIT_IDLE) != 0) {
-				throw new Exception ("Unable to render buffer to window!! ");// + Mono.Unix.Native.Stdlib.GetLastError ().ToString ());
+			// Flushing.SCREEN_WAIT_IDLE bombs on the PlayBook, lets use 0 (undefined, but used in samples!) for now.
+			if (screen_post_window (handle, buffer.buffer, 1, dirty, 0) != 0) {
+				throw new Exception ("Unable to render buffer to window!!");
 			}
 		}
 
