@@ -58,6 +58,7 @@ namespace BlackBerry
 		private int eventDomain;
 
 		public Action OnExit;
+		public Action OnSwipeDown;
 
 		public Navigator ()
 		{
@@ -95,6 +96,11 @@ namespace BlackBerry
 			case EventType.NAVIGATOR_EXIT:
 				if (OnExit != null) {
 					OnExit ();
+				}
+				break;
+			case EventType.NAVIGATOR_SWIPE_DOWN:
+				if (OnSwipeDown != null) {
+					OnSwipeDown ();
 				}
 				break;
 			default:
