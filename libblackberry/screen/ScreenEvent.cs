@@ -9,10 +9,13 @@ namespace BlackBerry.Screen
 		static extern IntPtr screen_event_get_event (IntPtr bps_event);
 
 		[DllImport ("screen")]
-		static extern IntPtr screen_get_event_property_iv (IntPtr handle, Property prop, out int val);
+		static extern int screen_get_event_property_iv (IntPtr handle, Property prop, out int val);
 
 		[DllImport ("screen")]
-		static extern IntPtr screen_get_event_property_pv (IntPtr handle, Property prop, out IntPtr val);
+		static extern int screen_get_event_property_pv (IntPtr handle, Property prop, out IntPtr val);
+
+		[DllImport ("screen")]
+		static extern int screen_get_event_property_iv (IntPtr handle, Property prop, int[] vals);
 
 		IntPtr handle;
 
@@ -39,7 +42,27 @@ namespace BlackBerry.Screen
 			screen_get_event_property_pv (handle, property, out val);
 			return val;
 		}
-		
+
+		public int X {
+			get {
+				var ints = new int[2];
+				if (screen_get_event_property_iv (handle, Property.SCREEN_PROPERTY_POSITION, ints) != 0) {
+					throw new Exception("Unable to read X position.");
+				}
+				return ints[0];
+			}
+		}
+
+		public int Y {
+			get {
+				var ints = new int[2];
+				if (screen_get_event_property_iv (handle, Property.SCREEN_PROPERTY_POSITION, ints) != 0) {
+					throw new Exception("Unable to read Y position.");
+				}
+				return ints[1];
+			}
+		}
+
 		public EventType Type {
 			get {
 				return (EventType)GetIntProperty (Property.SCREEN_PROPERTY_TYPE);
