@@ -30,6 +30,9 @@ namespace BlackBerry.Screen
 
 		public Action<Window> OnCloseWindow { get; set; }
 		public Action<Window> OnCreateWindow { get; set; }
+		public Action<int,int> OnFingerTouch { get; set; }
+		public Action<int,int> OnFingerMove { get; set; }
+		public Action<int,int> OnFingerRelease { get; set; }
 
 		public Context()
 		{
@@ -58,9 +61,21 @@ namespace BlackBerry.Screen
 					OnCreateWindow (new Window (this, e.GetIntPtrProperty (Property.SCREEN_PROPERTY_WINDOW)));
 				}
 				break;
-			//case EventType.SCREEN_EVENT_MTOUCH_TOUCH:
-			//case EventType.SCREEN_EVENT_MTOUCH_MOVE:
-			//case EventType.SCREEN_EVENT_MTOUCH_RELEASE:
+			case EventType.SCREEN_EVENT_MTOUCH_TOUCH:
+				if (OnFingerTouch != null) {
+					OnFingerTouch (e.X, e.Y);
+				}
+				break;
+			case EventType.SCREEN_EVENT_MTOUCH_MOVE:
+				if (OnFingerMove != null) {
+					OnFingerMove (e.X, e.Y);
+				}
+				break;
+			case EventType.SCREEN_EVENT_MTOUCH_RELEASE:
+				if (OnFingerRelease != null) {
+					OnFingerRelease (e.X, e.Y);
+				}
+				break;
 			default:
 				Console.WriteLine ("UNHANDLED SCREEN EVENT, TYPE: {0}", e.Type);
 				break;
