@@ -22,6 +22,12 @@ namespace BlackBerry.Screen
 		static extern int screen_stop_events (IntPtr ctx);
 
 		[DllImport ("screen")]
+		static extern int screen_flush_context (IntPtr ctx, Flushing flags);
+
+		[DllImport ("screen")]
+		static extern int screen_flush_blits (IntPtr ctx, Flushing flags);
+
+		[DllImport ("screen")]
 		static extern int screen_get_domain ();
 
 		IntPtr handle;
@@ -81,6 +87,20 @@ namespace BlackBerry.Screen
 				break;
 			}
 
+		}
+
+		public void FlushBlits ()
+		{
+			if (screen_flush_blits (handle, Flushing.SCREEN_WAIT_IDLE) != 0) {
+				throw new Exception ("Unable to flush blits.");
+			}
+		}
+
+		public void Flush ()
+		{
+			if (screen_flush_context (handle, 0) != 0) {
+				throw new Exception ("Unable to flush context");
+			}
 		}
 
 		public void Dispose ()

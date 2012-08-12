@@ -32,7 +32,7 @@ namespace BlackBerry.Screen
 		[DllImport ("screen")]
 		static extern int screen_set_window_property_cv (IntPtr win, Property pname, int len, byte[] param);
 
-		[DllImport ("screen", SetLastError = true)]
+		[DllImport ("screen")]
 		static extern int screen_post_window (IntPtr win, IntPtr buffer, int rect_count, [In] int[] dirty_rects, Flushing flushing);
 
 		Context context;
