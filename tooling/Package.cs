@@ -27,6 +27,15 @@ namespace MonoBerry.Tool
 			}
 		}
 
+		private static Assembly LoadAssembly (AssemblyName name)
+		{
+			try {
+				return LoadAssembly (name.Name);
+			} catch {
+				return Assembly.Load (name);
+			}
+		}
+
 		private static void LoadDependencies (Assembly assembly, ISet<Assembly> assemblies)
 		{
 			if (assemblies.Contains (assembly)) {
@@ -34,10 +43,16 @@ namespace MonoBerry.Tool
 			}
 
 			assemblies.Add (assembly);
-			//System.Console.WriteLine ("Adding {0}", assembly.FullName);
+			System.Console.WriteLine ("Adding {0}", assembly.FullName);
 			foreach (var i in assembly.GetReferencedAssemblies ()) {
+				var ignored = new HashSet<string> (new string[]{"Mono.Security", "System.Configuration"});
+				if (ignored.Contains (i.Name)) {
+					continue;
+				}
+				System.Console.WriteLine (" - {0}", i.Name);
+				//assemblies.Add (LoadAssembly (i.Name));
 				//LoadDependencies (LoadAssembly (i.Name), assemblies);
-				assemblies.Add (LoadAssembly (i.Name));
+				LoadDependencies (LoadAssembly (i), assemblies);
 			}
 		}
 
