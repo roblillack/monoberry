@@ -39,6 +39,16 @@ namespace BlackBerry.Screen
 		IntPtr handle;
 		public IntPtr Handle { get { return handle; } }
 
+		public PixelFormat PixelFormat {
+			get {
+				return (PixelFormat)GetIntProperty (Property.SCREEN_PROPERTY_FORMAT);
+			}
+
+			set {
+				SetIntProperty (Property.SCREEN_PROPERTY_FORMAT, (int)value);
+			}
+		}
+
 		public Usage Usage {
 			get {
 				return (Usage)GetIntProperty (Property.SCREEN_PROPERTY_USAGE);

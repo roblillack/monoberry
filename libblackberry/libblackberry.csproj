@@ -51,6 +51,7 @@
     <Compile Include="screen\EventType.cs" />
     <Compile Include="Navigator.cs" />
     <Compile Include="Event.cs" />
+    <Compile Include="screen\PixelFormat.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
