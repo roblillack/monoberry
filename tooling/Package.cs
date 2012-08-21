@@ -89,10 +89,11 @@ namespace MonoBerry.Tool
 			return null;
 		}
 
-		public void CreateAppDescriptor (string assemblyFile, bool devMode = true)
+		public void CreateAppDescriptor (string assemblyFile, Architecture arch, bool devMode = true)
 		{
 			var assembly = Assembly.LoadFile (assemblyFile);
 			Console.WriteLine ("Assembly: {0}", assembly.Location);
+			Console.WriteLine ("Architecture: {0}", arch);
 			Console.WriteLine ("Path: {0}", Directory.GetParent (assembly.Location));
 			Directory.SetCurrentDirectory (Directory.GetParent (assembly.Location).FullName);
 
@@ -144,6 +145,13 @@ namespace MonoBerry.Tool
 				xml.WriteAttributeString ("value", "app/native/lib");
 				xml.WriteEndElement ();
 
+				if (devMode) {
+					xml.WriteStartElement ("env");
+					xml.WriteAttributeString ("var", "MONO_LOG_LEVEL");
+					xml.WriteAttributeString ("value", "debug");
+					xml.WriteEndElement ();
+				}
+
 				foreach (var i in deps) {
 					string path = null;
 
@@ -159,7 +167,7 @@ namespace MonoBerry.Tool
 				}
 
 				xml.WriteStartElement ("asset");
-				xml.WriteAttributeString ("path", Path.Combine (Application.Configuration.Location, "target", "armle-v7", "bin", "mono"));
+				xml.WriteAttributeString ("path", Path.Combine (Application.Configuration.Location, "target", arch.Name, "bin", "mono"));
 				xml.WriteAttributeString ("entry", "true");
 				xml.WriteAttributeString ("type", "Qnx/Elf");
 				xml.WriteString ("bin/mono");
@@ -175,7 +183,13 @@ namespace MonoBerry.Tool
 		
 		public override void Execute (IList<string> parameters)
 		{
-			CreateAppDescriptor (parameters [0]);
+			Architecture arch;
+			try {
+				arch = Architecture.FromName (parameters [1]);
+			} catch {
+				arch = Architecture.ARM;
+			}
+			CreateAppDescriptor (parameters [0], arch);
 		}
 	}
 

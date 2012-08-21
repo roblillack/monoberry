@@ -10,6 +10,7 @@ namespace MonoBerry.Tool
 		public string Name;
 		public string Ip;
 		public string Password;
+		public Architecture Architecture;
 	}
 
     public class Configuration
@@ -114,10 +115,17 @@ namespace MonoBerry.Tool
 				var sec = section as IConfig;
 				if (sec.Name.StartsWith ("device.")) {
 					var name = sec.Name.Substring ("device.".Length);
+					Architecture arch;
+					try {
+						arch = Architecture.FromName (sec.GetString ("arch"));
+					} catch {
+						arch = Architecture.ARM;
+					}
 					devices.Add (name, new Device {
 						Name = name,
 						Ip = sec.GetString ("ip"),
-						Password = sec.GetString ("password")
+						Password = sec.GetString ("password"),
+						Architecture = arch
 					}); 
 				}
 			}

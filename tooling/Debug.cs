@@ -17,11 +17,11 @@ namespace MonoBerry.Tool
 		
 		public override void Execute (IList<string> parameters)
 		{
-			Package p = Application.GetCommand<Package> ();
-			p.CreateAppDescriptor (parameters [0], true);
-
 			var appName = Path.GetFileNameWithoutExtension (parameters [0]);
 			var device = GetDevice (parameters);
+
+			Package p = Application.GetCommand<Package> ();
+			p.CreateAppDescriptor (parameters [0], device.Architecture, true);
 
 			// TODO: blackberry-nativepackager -package assemblyname.bar app-descriptor.xml
 			// -devMode -target bar-debug -installApp -launchApp -device XXX -password XXX

@@ -15,10 +15,10 @@ namespace MonoBerry.Tool
 		
 		public override void Execute (IList<string> parameters)
 		{
-			var format =  "{0,-20} {1}";
-			Console.WriteLine (format, "NAME", "IP");
+			var format =  "{0,-20} {1,-10} {2}";
+			Console.WriteLine (format, "NAME", "ARCH", "IP");
 			foreach (var d in Application.Configuration.GetDevices ()) {
-				Console.WriteLine (format, d.Value.Name, d.Value.Ip);
+				Console.WriteLine (format, d.Value.Name, d.Value.Architecture, d.Value.Ip);
 			}
 		}
 	}

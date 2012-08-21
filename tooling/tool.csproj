@@ -53,6 +53,7 @@
     <Compile Include="Package.cs" />
     <Compile Include="Devices.cs" />
     <Compile Include="Debug.cs" />
+    <Compile Include="Architecture.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
