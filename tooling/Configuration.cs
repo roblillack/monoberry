@@ -22,6 +22,7 @@ namespace MonoBerry.Tool
 
 		public string NativeSDKPath { get { return Get ("nativesdk"); } }
 		public string Location { get { return Get ("location"); } }
+		public string SSHPublicKey { get { return Get ("public_key"); } }
 
 		public string ConfigFile {
 			get {
