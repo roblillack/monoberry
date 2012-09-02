@@ -153,6 +153,10 @@ namespace MonoBerry.Tool
 				xml.WriteAttributeString ("value", "app/native/lib");
 				xml.WriteEndElement ();
 
+				xml.WriteStartElement ("env");
+				xml.WriteAttributeString ("var", "LD_LIBRARY_PATH");
+				xml.WriteAttributeString ("value", "/lib:/usr/lib/:app/native/lib");
+				xml.WriteEndElement ();
 
 				if (devMode) {
 					xml.WriteStartElement ("env");
