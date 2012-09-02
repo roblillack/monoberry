@@ -2,16 +2,11 @@
 
 BASE=`cd "\`dirname "\\\`readlink "$0" || echo $0\\\`"\`" && pwd`
 
-ASSEMBLY=
-for i in $BASE/monoberry.exe $BASE/bin/Release/monoberry.exe $BASE/bin/Debug/monoberry.exe; do
-  if [ -r $i ]; then
-    ASSEMBLY=$i
-    break
-  fi
-done
+ASSNAME=monoberry.exe
+ASSEMBLY=`find $BASE/bin -name $ASSNAME | xargs ls -t | head -1`
 
 if [ -z $ASSEMBLY ]; then
-  echo "Unable to find monoberry.exe" > /dev/stderr
+  echo "Unable to find $ASSNAME" > /dev/stderr
   exit 1
 fi
 
