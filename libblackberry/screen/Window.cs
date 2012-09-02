@@ -155,6 +155,10 @@ namespace BlackBerry.Screen
 			}
 		}
 
+		public Window () : this (Context.GetInstance (ContextType.SCREEN_APPLICATION_CONTEXT)) {}
+
+		public Window (WindowType type) : this (Context.GetInstance (ContextType.SCREEN_APPLICATION_CONTEXT), type) {}
+
 		public Window (Context ctx, WindowType type = WindowType.SCREEN_APPLICATION_WINDOW)
 		{
 			context = ctx;

@@ -32,7 +32,9 @@ namespace BlackBerry.Screen
 
 		IntPtr handle;
 		public IntPtr Handle { get { return handle; } }
-		private int eventDomain;
+		int eventDomain;
+		bool disposed = false;
+		ContextType type;
 
 		public Action<Window> OnCloseWindow { get; set; }
 		public Action<Window> OnCreateWindow { get; set; }
@@ -40,10 +42,34 @@ namespace BlackBerry.Screen
 		public Action<int,int> OnFingerMove { get; set; }
 		public Action<int,int> OnFingerRelease { get; set; }
 
-		public Context()
+		private static IDictionary<ContextType, Context> instances = new Dictionary<ContextType, Context> ();
+
+		public static Context GetInstance (ContextType type)
+		{
+			lock (typeof (Context)) {
+				Context ctx;
+				if (!instances.TryGetValue (type, out ctx)) {
+					ctx = new Context (type);
+					instances.Add (type, ctx);
+				}
+				return ctx;
+			}
+		}
+
+		static void RemoveInstance (ContextType type)
+		{
+			lock (typeof (Context)) {
+				if (instances.ContainsKey (type)) {
+					instances.Remove (type);
+				}
+			}
+		} 
+
+		Context (ContextType type)
 		{
 			PlatformServices.Initialize ();
-			if (screen_create_context (out handle, ContextType.SCREEN_APPLICATION_CONTEXT) != 0) {
+			this.type = type;
+			if (screen_create_context (out handle, type) != 0) {
 				// TODO: read errno to describe problem
 				throw new Exception ("Unable to create screen context");
 			}
@@ -105,9 +131,16 @@ namespace BlackBerry.Screen
 
 		public void Dispose ()
 		{
+			if (disposed) {
+				return;
+			}
+
 			PlatformServices.RemoveEventHandler (eventDomain);
 			screen_stop_events (handle);
 			screen_destroy_context (handle);
+			RemoveInstance (type);
+
+			disposed = true;
 		}
 	}
 	
