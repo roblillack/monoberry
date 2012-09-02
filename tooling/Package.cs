@@ -45,10 +45,10 @@ namespace MonoBerry.Tool
 			assemblies.Add (assembly);
 			System.Console.WriteLine ("Adding {0}", assembly.FullName);
 			foreach (var i in assembly.GetReferencedAssemblies ()) {
-				var ignored = new HashSet<string> (new string[]{"Mono.Security", "System.Configuration"});
+				/*var ignored = new HashSet<string> (new string[]{"Mono.Security", "System.Configuration"});
 				if (ignored.Contains (i.Name)) {
 					continue;
-				}
+				}*/
 				System.Console.WriteLine (" - {0}", i.Name);
 				//assemblies.Add (LoadAssembly (i.Name));
 				//LoadDependencies (LoadAssembly (i.Name), assemblies);
