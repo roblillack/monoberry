@@ -89,6 +89,14 @@ namespace MonoBerry.Tool
 			return null;
 		}
 
+		private static string UpPath (string path, int times = 1)
+		{
+			for (int i = 0; i < times; i++) {
+				path = Path.GetDirectoryName (path);
+			}
+			return path;
+		}
+
 		public void CreateAppDescriptor (string assemblyFile, Architecture arch, bool devMode = true)
 		{
 			var assembly = Assembly.LoadFile (assemblyFile);
@@ -158,12 +166,15 @@ namespace MonoBerry.Tool
 					//xml.WriteEndElement ();
 				}
 
+				string monopath = null;
+				string monoplat = "4.0";
 				foreach (var i in deps) {
 					string path = null;
 
 					if (Path.GetFileName (i.Location) == "mscorlib.dll") {
-						path = Path.Combine (Application.Configuration.Location, "lib", "mono",
-							                     i.ImageRuntimeVersion.StartsWith ("v2.") ? "2.0" : "4.0", "mscorlib.dll");						                  
+						monopath = UpPath (i.Location, 4);
+						monoplat = i.ImageRuntimeVersion.StartsWith ("v2.") ? "2.0" : "4.0";
+						path = Path.Combine (Application.Configuration.Location, "lib", "mono", monoplat, "mscorlib.dll");						                  
 					}
 
 					xml.WriteStartElement ("asset");
@@ -179,6 +190,15 @@ namespace MonoBerry.Tool
 						xml.WriteString ("lib/" + Path.GetFileName (cfg));
 						xml.WriteEndElement ();
 					}
+				}
+
+				var machinecfg = Path.Combine (monopath, "etc", "mono", monoplat, "machine.config");
+				if (monopath != null && File.Exists (machinecfg)) {
+					Console.Out.WriteLine ("- Adding machine config from {0}", machinecfg);
+					xml.WriteStartElement ("asset");
+					xml.WriteAttributeString ("path", machinecfg);
+					xml.WriteString ("lib/" + Path.GetFileName (assembly.Location) + ".config");
+					xml.WriteEndElement ();
 				}
 
 				xml.WriteStartElement ("asset");
