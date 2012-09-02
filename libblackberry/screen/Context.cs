@@ -30,6 +30,12 @@ namespace BlackBerry.Screen
 		[DllImport ("screen")]
 		static extern int screen_get_domain ();
 
+		[DllImport ("screen")]
+		static extern int screen_get_context_property_iv (IntPtr ctx, Property property, out int param);
+
+		[DllImport ("screen")]
+		static extern int screen_get_context_property_pv (IntPtr ctx, Property property, [Out] IntPtr[] param);
+
 		IntPtr handle;
 		public IntPtr Handle { get { return handle; } }
 		int eventDomain;
@@ -126,6 +132,20 @@ namespace BlackBerry.Screen
 		{
 			if (screen_flush_context (handle, 0) != 0) {
 				throw new Exception ("Unable to flush context");
+			}
+		}
+
+		public List<Display> Displays {
+			get {
+				int count;
+				screen_get_context_property_iv (handle, Property.SCREEN_PROPERTY_DISPLAY_COUNT, out count);
+				var handles = new IntPtr [count];
+				screen_get_context_property_pv (handle, Property.SCREEN_PROPERTY_DISPLAYS, handles);
+				var displays = new List<Display> ();
+				foreach (var i in handles) {
+					displays.Add (new Display (i));
+				}
+				return displays;
 			}
 		}
 
