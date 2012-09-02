@@ -18,7 +18,16 @@ namespace BlackBerry.Screen
 		static extern int screen_destroy_window (IntPtr win);
 
 		[DllImport ("screen")]
+		static extern int screen_get_window_property_iv (IntPtr win, Property pname, out int param);
+
+		[DllImport ("screen")]
 		static extern int screen_set_window_property_iv (IntPtr win, Property pname, ref int param);
+
+		[DllImport ("screen")]
+		static extern int screen_set_window_property_iv (IntPtr win, Property pname, ref uint param);
+
+		[DllImport ("screen")]
+		static extern int screen_set_window_property_iv (IntPtr win, Property pname, [In] int[] param);
 
 		[DllImport ("screen")]
 		static extern int screen_get_window_property_iv (IntPtr win, Property pname, [Out] int[] param);
@@ -74,17 +83,28 @@ namespace BlackBerry.Screen
 				return GetIntProperty (Property.SCREEN_PROPERTY_VISIBLE) == 1;
 			}
 			set {
+				if (IsVisible == value) {
+					return;
+				}
 				SetIntProperty (Property.SCREEN_PROPERTY_VISIBLE, value ? 1 : 0);
+				context.Flush ();
 			}
 		}
 
 		public int GetIntProperty (Property p)
 		{
-			var result = new int[] { 0 };
-			if (screen_get_window_property_iv (handle, p, result) != 0) {
+			int result;
+			if (screen_get_window_property_iv (handle, p, out result) != 0) {
 				throw new Exception ("Unable to read window property " + p);
 			}
-			return result [0];
+			return result;
+		}
+
+		public void SetIntProperty (Property p, uint val)
+		{
+			if (screen_set_window_property_iv (handle, p, ref val) != 0) {
+				throw new Exception ("Unable to set window property " + p);
+			}
 		}
 
 		public void SetIntProperty (Property p, int val)
@@ -97,7 +117,7 @@ namespace BlackBerry.Screen
 		public void AddBuffers (int count)
 		{
 			if (screen_create_window_buffers (handle, count) != 0) {
-				throw new Exception ("Unmable to create buffers.");
+				throw new Exception ("Unable to create buffers.");
 			}
 		}
 
