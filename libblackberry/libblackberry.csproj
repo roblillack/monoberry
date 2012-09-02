@@ -52,6 +52,7 @@
     <Compile Include="Navigator.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="screen\PixelFormat.cs" />
+    <Compile Include="screen\Transparency.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -59,6 +59,16 @@ namespace BlackBerry.Screen
 			}
 		}
 
+		public Transparency Transparency {
+			get {
+				return (Transparency)GetIntProperty (Property.SCREEN_PROPERTY_TRANSPARENCY);
+			}
+			
+			set {
+				SetIntProperty (Property.SCREEN_PROPERTY_TRANSPARENCY, (int)value);
+			}
+		}
+		
 		public bool IsVisible {
 			get {
 				return GetIntProperty (Property.SCREEN_PROPERTY_VISIBLE) == 1;
