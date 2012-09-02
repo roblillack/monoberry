@@ -145,11 +145,17 @@ namespace MonoBerry.Tool
 				xml.WriteAttributeString ("value", "app/native/lib");
 				xml.WriteEndElement ();
 
+
 				if (devMode) {
 					xml.WriteStartElement ("env");
-					xml.WriteAttributeString ("var", "MONO_LOG_LEVEL");
-					xml.WriteAttributeString ("value", "debug");
+					xml.WriteAttributeString ("var", "MONO_TRACE_LISTENER");
+					xml.WriteAttributeString ("value", "Console.Out");
 					xml.WriteEndElement ();
+
+					//xml.WriteStartElement ("env");
+					//xml.WriteAttributeString ("var", "MONO_LOG_LEVEL");
+					//xml.WriteAttributeString ("value", "debug");
+					//xml.WriteEndElement ();
 				}
 
 				foreach (var i in deps) {
@@ -164,6 +170,15 @@ namespace MonoBerry.Tool
 					xml.WriteAttributeString ("path", path ?? i.Location);
 					xml.WriteString ("lib/" + Path.GetFileName (i.Location));
 					xml.WriteEndElement ();
+
+					var cfg = (path ?? i.Location) + ".config";
+					if (File.Exists (cfg)) {
+						Console.Out.WriteLine ("- Adding assembly config from {0}", cfg);
+						xml.WriteStartElement ("asset");
+						xml.WriteAttributeString ("path", cfg);
+						xml.WriteString ("lib/" + Path.GetFileName (cfg));
+						xml.WriteEndElement ();
+					}
 				}
 
 				xml.WriteStartElement ("asset");
@@ -173,6 +188,7 @@ namespace MonoBerry.Tool
 				xml.WriteString ("bin/mono");
 				xml.WriteEndElement ();
 
+				//xml.WriteElementString ("arg", "--trace=N:OpenTK,N:OpenTK.Graphics.ES10,OpenTK.Graphics.ES11,OpenTK.Graphics.ES20,N:OpenTK.Platform.Egl,N:OpenTK.Platform.BlackBerry,N:OpenTK.Platform,N:OpenTK.Graphics,program");
 				xml.WriteElementString ("arg", "app/native/lib/" + Path.GetFileName (assembly.Location));
 
 				xml.WriteEndElement ();
