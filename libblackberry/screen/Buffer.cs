@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Text;
 using System.Runtime.InteropServices;
 
@@ -31,6 +33,12 @@ namespace BlackBerry.Screen
 				(int)BlitAttribute.SCREEN_BLIT_END
 			};
 			screen_fill (context.Handle, buffer, attribs);
+		}
+
+		public void Blit (Buffer src, Rectangle rect)
+		{
+			Console.WriteLine ("Blitting {0}", rect);
+			Blit (src, rect.X, rect.Y, rect.Width, rect.Height, rect.X, rect.Y);
 		}
 
 		public void Blit (Buffer src, int srcX, int srcY, int width, int height, int dstX, int dstY)
