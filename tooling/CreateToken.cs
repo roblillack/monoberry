@@ -26,8 +26,7 @@ namespace MonoBerry.Tool
 			}
 			var pw = Application.Configuration.CSKPassword;
 			while (pw.IsEmpty ()) {
-				Console.Write ("CSK Password: ");
-				pw = Console.ReadLine ();
+				pw = Extensions.ReadPassword ("CSK Password (will not echo): ");
 			}
 			Directory.GetParent (Application.Configuration.DebugToken).Create ();
 			var cmd = String.Format ("{0}/usr/bin/blackberry-debugtokenrequest {1} -storepass \"{2}\" {3}",

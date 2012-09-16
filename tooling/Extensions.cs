@@ -8,12 +8,12 @@ namespace MonoBerry.Tool
 {
 	public static class Extensions
 	{
-		public static string Join (this IEnumerable me, string str)
+		public static string Join (this IEnumerable me, string str = null)
 		{
 			StringBuilder b = new StringBuilder ();
 			bool first = true;
 			foreach (var i in me) {
-				if (!first) {
+				if (!first && str != null) {
 					b.Append (str);
 				}
 				b.Append (i);
@@ -50,6 +50,26 @@ namespace MonoBerry.Tool
 		public static bool IsEmpty (this string me)
 		{
 			return me == null || "".Equals (me);
+		}
+
+		public static string ReadPassword (string text = null)
+		{
+			Console.Write (text);
+			var stack = new Stack<char> ();
+			for (;;) {
+				var key = Console.ReadKey(true);
+				switch (key.Key) {
+				case ConsoleKey.Backspace:
+					if (stack.Count > 0) {
+						stack.Pop ();
+					}
+					continue;
+				case ConsoleKey.Enter:
+					Console.WriteLine ();
+					return stack.Reverse ().Join ();
+				}
+				stack.Push (key.KeyChar);
+			}
 		}
 
 		static readonly char[] NEEDS_ESCAPING = {'"', ';', ':', ',', '\\'};
