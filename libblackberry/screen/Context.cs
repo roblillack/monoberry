@@ -42,13 +42,14 @@ namespace BlackBerry.Screen
 		bool disposed = false;
 		ContextType type;
 
-		public Action<Window> OnCloseWindow { get; set; }
-		public Action<Window> OnCreateWindow { get; set; }
+		public Action<ScreenEvent> OnCloseWindow { get; set; }
+		public Action<ScreenEvent> OnCreateWindow { get; set; }
 		public Action<int,int> OnFingerTouch { get; set; }
 		public Action<int,int> OnFingerMove { get; set; }
 		public Action<int,int> OnFingerRelease { get; set; }
 
 		private static IDictionary<ContextType, Context> instances = new Dictionary<ContextType, Context> ();
+		IDictionary<IntPtr, Window> windows = new Dictionary<IntPtr, Window> ();
 
 		public static Context GetInstance (ContextType type)
 		{
@@ -84,19 +85,43 @@ namespace BlackBerry.Screen
 			PlatformServices.AddEventHandler (eventDomain, HandleEvent);
 		}
 
+		internal void RegisterWindow (Window win) {
+			windows.Add (win.Handle, win);
+		}
+
+		internal void UnregisterWindow (Window win) {
+			windows.Remove (win.Handle);
+		}
+
+		bool HandleWindowEvent (ScreenEvent ev) {
+			var handle = ev.GetIntPtrProperty (Property.SCREEN_PROPERTY_WINDOW);
+			if (!windows.ContainsKey (handle)) {
+				return false;
+			}
+			windows [handle].HandleEvent (ev);
+			return true;
+		}
+
 		void HandleEvent (IntPtr eventHandle)
 		{
 			var e = ScreenEvent.FromEventHandle (eventHandle);
 
+			if (e.Type == EventType.SCREEN_EVENT_CLOSE ||
+			    e.Type == EventType.SCREEN_EVENT_CREATE) {
+				if (HandleWindowEvent (e) ) {
+					return;
+				}
+			}
+
 			switch (e.Type) {
 			case EventType.SCREEN_EVENT_CLOSE:
 				if (OnCloseWindow != null) {
-					OnCloseWindow (new Window (this, e.GetIntPtrProperty (Property.SCREEN_PROPERTY_WINDOW)));
+					OnCloseWindow (e);
 				}
 				break;
 			case EventType.SCREEN_EVENT_CREATE:
 				if (OnCreateWindow != null) {
-					OnCreateWindow (new Window (this, e.GetIntPtrProperty (Property.SCREEN_PROPERTY_WINDOW)));
+					OnCreateWindow (e);
 				}
 				break;
 			case EventType.SCREEN_EVENT_MTOUCH_TOUCH:
@@ -116,6 +141,9 @@ namespace BlackBerry.Screen
 				break;
 			default:
 				Console.WriteLine ("UNHANDLED SCREEN EVENT, TYPE: {0}", e.Type);
+				if (e.Type == EventType.SCREEN_EVENT_PROPERTY) {
+					Console.WriteLine (" - Name: {0}", (Property)e.GetIntProperty (Property.SCREEN_PROPERTY_NAME));
+				}
 				break;
 			}
 

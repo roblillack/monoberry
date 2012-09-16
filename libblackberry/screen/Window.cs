@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Text;
 using System.Runtime.InteropServices;
 
@@ -47,6 +49,29 @@ namespace BlackBerry.Screen
 		Context context;
 		IntPtr handle;
 		public IntPtr Handle { get { return handle; } }
+
+		public Action OnClose { get; set; }
+		public Action OnCreate { get; set; }
+
+		internal bool HandleEvent (ScreenEvent ev) {
+			Debug.Print ("Window {0}: Shall handle {1} event.", Handle, ev.Type);
+			switch (ev.Type) {
+			case EventType.SCREEN_EVENT_CLOSE:
+				if (OnClose != null) {
+					OnClose ();
+					return true;
+				}
+				break;
+			case EventType.SCREEN_EVENT_CREATE:
+				if (OnCreate != null) {
+					OnCreate ();
+					return true;
+				}
+				break;
+			}
+
+			return false;
+		}
 
 		public PixelFormat PixelFormat {
 			get {
@@ -170,14 +195,23 @@ namespace BlackBerry.Screen
 		{
 			var dirty = new int[] { 0, 0, Width, Height };
 			// Flushing.SCREEN_WAIT_IDLE bombs on the PlayBook, lets use 0 (undefined, but used in samples!) for now.
-			if (screen_post_window (handle, buffer.buffer, 1, dirty, 0) != 0) {
+			if (screen_post_window (handle, buffer.buffer, 1, dirty, Flushing.SCREEN_WAIT_IDLE) != 0) {
 				throw new Exception ("Unable to render buffer to window!!");
 			}
 		}
 
-		public Window () : this (Context.GetInstance (ContextType.SCREEN_APPLICATION_CONTEXT)) {}
+		public void Render (Buffer buf, Rectangle rect, Flushing flush)
+		{
+			Console.WriteLine ("Rendering {0}", rect);
+			var dirty = new int[] { rect.Left, rect.Top, rect.Width, rect.Height };
+			if (screen_post_window (handle, buf.buffer, 1, dirty, flush) != 0) {
+				throw new Exception ("Unable to render buffer to window!!");
+			}
+		}
 
-		public Window (WindowType type) : this (Context.GetInstance (ContextType.SCREEN_APPLICATION_CONTEXT), type) {}
+		//public Window () : this (Context.GetInstance (ContextType.Application)) {}
+
+		//public Window (WindowType type) : this (Context.GetInstance (ContextType.Application), type) {}
 
 		public Window (Context ctx, WindowType type = WindowType.SCREEN_APPLICATION_WINDOW)
 		{
@@ -192,6 +226,7 @@ namespace BlackBerry.Screen
 			if (screen_create_window_group (handle, handle.ToString ()) != 0) {
 				throw new Exception ("Unable to create window group");
 			}
+			context.RegisterWindow (this);
 		}
 
 		public Window (Context ctx, IntPtr hnd)
@@ -202,6 +237,7 @@ namespace BlackBerry.Screen
 
 		public void Dispose ()
 		{
+			context.UnregisterWindow (this);
 			if (screen_destroy_window (handle) != 0) {
 				// TODO: read errno
 				throw new Exception ("Unable to destroy window");
