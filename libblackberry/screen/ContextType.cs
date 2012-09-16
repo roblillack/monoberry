@@ -7,11 +7,11 @@ namespace BlackBerry.Screen
 {
 	[Flags]
 	public enum ContextType : int {
-		SCREEN_APPLICATION_CONTEXT = 0,
-		SCREEN_WINDOW_MANAGER_CONTEXT = (1 << 0),
-		SCREEN_INPUT_PROVIDER_CONTEXT = (1 << 1),  
-		SCREEN_POWER_MANAGER_CONTEXT = (1 << 2), 
-		SCREEN_DISPLAY_MANAGER_CONTEXT = (1 << 3)
+		Application = 0,
+		WindowManager = (1 << 0),
+		InputProvider = (1 << 1),  
+		PowerManager = (1 << 2), 
+		DisplayManager = (1 << 3)
 	}
 
 }
