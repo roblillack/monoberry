@@ -2,6 +2,7 @@ TARGET=target
 DESTDIR=/Developer/SDKs/MonoBerry
 MONOSRC=mono
 NDK=/Developer/SDKs/bbndk-10.0.4-beta
+PREFIX=/usr/local
 
 all:	cli mono libs
 
@@ -19,10 +20,13 @@ target/tool/monoberry.exe: tooling/*.cs tooling/tool.csproj
 
 clean:
 	@rm -rf tooling/bin/ target/ libblackberry/bin
+	@rm -f ${PREFIX}/bin/monoberry
 
 install:
 	@mkdir -p ${DESTDIR}
 	@cp -r ${TARGET}/* ${DESTDIR}
+	@printf '#!/bin/sh\nmono '${DESTDIR}'/tool/monoberry.exe $$@\n' > ${PREFIX}/bin/monoberry
+	@chmod a+rx ${PREFIX}/bin/monoberry
 
 libs:	${TARGET}/lib/mono/4.0/libblackberry.dll
 
