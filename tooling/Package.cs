@@ -139,8 +139,8 @@ namespace MonoBerry.Tool
 				xml.WriteElementString ("buildId", Math.Abs ((short)assembly.GetName ().Version.Revision).ToString ());
 
 				if (devMode) {
-					xml.WriteElementString ("author", Application.Configuration.Get ("debugtoken", "author"));
-					xml.WriteElementString ("authorId", Application.Configuration.Get ("debugtoken", "token"));
+					xml.WriteElementString ("author", Application.Configuration.Get ("author_name"));
+					xml.WriteElementString ("authorId", Application.Configuration.Get ("author_id"));
 				}
 
 				xml.WriteStartElement ("initialWindow");
