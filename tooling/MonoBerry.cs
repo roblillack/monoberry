@@ -61,6 +61,10 @@ namespace MonoBerry.Tool
 			Console.Error.WriteLine ("Unknown command: {0}", cmd);
 		}
 
+		public void Execute (Type cmd) {
+			Execute (cmd, new List<string> ());
+		}
+
 		public T GetCommand<T> ()
 		{
 			foreach (object c in commands) {

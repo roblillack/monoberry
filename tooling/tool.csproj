@@ -57,6 +57,7 @@
     <Compile Include="Connect.cs" />
     <Compile Include="CreateToken.cs" />
     <Compile Include="Shell.cs" />
+    <Compile Include="Setup.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
