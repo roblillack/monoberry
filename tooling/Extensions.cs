@@ -46,7 +46,12 @@ namespace MonoBerry.Tool
 			
 			return false;
 		}
-		
+
+		public static bool IsEmpty (this string me)
+		{
+			return me == null || "".Equals (me);
+		}
+
 		static readonly char[] NEEDS_ESCAPING = {'"', ';', ':', ',', '\\'};
 
 		public static string Escape (this string me)

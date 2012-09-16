@@ -55,6 +55,7 @@
     <Compile Include="Debug.cs" />
     <Compile Include="Architecture.cs" />
     <Compile Include="Connect.cs" />
+    <Compile Include="CreateToken.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
