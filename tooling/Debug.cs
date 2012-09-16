@@ -31,7 +31,7 @@ namespace MonoBerry.Tool
 			                         Application.Configuration.NativeSDKHostDir,
 			                         appName,
 			                         "app-descriptor.xml",
-			                         device.Ip,
+			                         device.IP,
 			                         device.Password);
 			Run (cmd);
 		}

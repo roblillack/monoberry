@@ -21,7 +21,7 @@ namespace MonoBerry.Tool
 			var cmd = String.Format ("{0}/usr/bin/blackberry-connect {1} -password {2} " +
 			                         "-sshPublicKey {3}",
 			                         Application.Configuration.NativeSDKHostDir,
-			                         device.Ip,
+			                         device.IP,
 			                         device.Password,
 			                         Application.Configuration.SSHPublicKey);
 			Run (cmd);

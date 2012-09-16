@@ -8,7 +8,7 @@ namespace MonoBerry.Tool
 {
 	public struct Device {
 		public string Name;
-		public string Ip;
+		public string IP;
 		public string Password;
 		public string PIN;
 		public Architecture Architecture;
@@ -137,7 +137,7 @@ namespace MonoBerry.Tool
 					}
 					devices.Add (name, new Device {
 						Name = name,
-						Ip = sec.GetString ("ip"),
+						IP = sec.GetString ("ip"),
 						Password = sec.GetString ("password"),
 						PIN = sec.GetString ("pin"),
 						Architecture = arch
