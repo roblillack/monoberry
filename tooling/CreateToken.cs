@@ -29,8 +29,8 @@ namespace MonoBerry.Tool
 				pw = Extensions.ReadPassword ("CSK Password (will not echo): ");
 			}
 			Directory.GetParent (Application.Configuration.DebugToken).Create ();
-			var cmd = String.Format ("{0}/usr/bin/blackberry-debugtokenrequest {1} -storepass \"{2}\" {3}",
-			                         Application.Configuration.NativeSDKHostDir,
+			var cmd = String.Format ("{0}/usr/bin/blackberry-debugtokenrequest -storepass \"{2}\" {1} {3}",
+			                         Application.Configuration.QNXHostPath,
 			                         pins.Join (" "),
 			                         pw,
 			                         Application.Configuration.DebugToken);

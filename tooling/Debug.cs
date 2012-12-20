@@ -28,7 +28,7 @@ namespace MonoBerry.Tool
 			// /Developer/SDKs/bbndk-10.0.4-beta/host/macosx/x86/usr/bin/blackberry-nativepackager
 			var cmd = String.Format ("{0}/usr/bin/blackberry-nativepackager -package {1}.bar {2} " +
 			                         "-devMode -target bar-debug -installApp -launchApp -device {3} -password {4}",
-			                         Application.Configuration.NativeSDKHostDir,
+			                         Application.Configuration.QNXHostPath,
 			                         appName,
 			                         "app-descriptor.xml",
 			                         device.IP,

@@ -2,6 +2,7 @@ using Nini.Config;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 
 namespace MonoBerry.Tool
@@ -22,6 +23,8 @@ namespace MonoBerry.Tool
 		IniConfigSource configSource;
 
 		public string NativeSDKPath { get { return Get ("nativesdk"); } }
+		public string QNXHostPath { get { return Get ("qnx_host_dir"); } }
+		public string QNXTargetPath { get { return Get ("qnx_target_dir"); } }
 		public string Location { get { return Get ("location"); } }
 		public string SSHPublicKey { get { return Get ("public_key"); } }
 		public string SSHPrivateKey { get { return Get ("private_key"); } }
@@ -55,21 +58,45 @@ namespace MonoBerry.Tool
 			}
 		}
 
-		public string NativeSDKHostDir {
-			get {
-				return Path.Combine (NativeSDKPath, "host", "macosx", "x86");
-			}
-		}
-
 		private string FindNativeSDK ()
 		{
-			foreach (var i in new string[] { "/Developer/SDKs/bbndk-10.0.4-beta" }) {
-				if (Directory.Exists (i)) {
+			foreach (var i in new string[] { "/Applications/bbndk", "/Developer/SDKs/bbndk-10.0.4-beta" }) {
+				if (Directory.Exists (i) && File.Exists (Path.Combine (i, "bbndk-env.sh"))) {
 					return i;
 				}
 			}
 
 			throw new Exception ("Unable to find BlackBerry Native SDK. Please speficy in " + ConfigFile);
+		}
+
+		private string FindQNXHost ()
+		{
+			var file = new StreamReader (Path.Combine (NativeSDKPath, "bbndk-env.sh"));
+			var rx = new Regex("^QNX_HOST=\"?(.*?)\"?$");
+			string line;
+			while ((line = file.ReadLine()) != null) {
+				var match = rx.Match (line);
+				if (match.Success) {
+					return match.Groups [1].Value;
+				}
+			}
+
+			throw new Exception ("Unable to find QNX host directory. Please specify in " + ConfigFile);
+		}
+
+		private string FindQNXTarget ()
+		{
+			var file = new StreamReader (Path.Combine (NativeSDKPath, "bbndk-env.sh"));
+			var rx = new Regex("^QNX_TARGET=\"?(.*)\"?$");
+			string line;
+			while ((line = file.ReadLine()) != null) {
+				var match = rx.Match (line);
+				if (match.Success) {
+					return match.Groups [1].Value;
+				}
+			}
+			
+			throw new Exception ("Unable to find QNX host directory. Please specify in " + ConfigFile);
 		}
 
 		private string FindLocation ()
@@ -106,6 +133,8 @@ namespace MonoBerry.Tool
 				switch (key) {
 				case "location": return FindLocation ();
 				case "nativesdk": return FindNativeSDK ();
+				case "qnx_host_dir": return FindQNXHost ();
+				case "qnx_target_dir": return FindQNXTarget ();
 				case "debug_token": return Path.Combine (DefaultConfigDir, "debugtoken.bar");
 				case "private_key": return Path.Combine (DefaultConfigDir, "id_rsa");
 				case "public_key": return Path.Combine (DefaultConfigDir, "id_rsa.pub");

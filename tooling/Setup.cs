@@ -25,7 +25,7 @@ namespace MonoBerry.Tool
 
 			var dev = GetDevice (parameters);
 			var cmd = String.Format ("{0}/usr/bin/blackberry-nativepackager -installDebugToken {1} -device {2} -password \"{3}\"",
-			                         Application.Configuration.NativeSDKHostDir,
+			                         Application.Configuration.QNXHostPath,
 			                         Application.Configuration.DebugToken,
 			                         dev.IP,
 			                         dev.Password);
