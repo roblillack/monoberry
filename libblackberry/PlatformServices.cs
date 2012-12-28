@@ -62,7 +62,11 @@ namespace BlackBerry
 			while (IsRunning) {
 				bps_get_event (out handle, timeoutMillis);
 				if (handle == IntPtr.Zero) {
-					break;
+					if (timeoutMillis < 0) {
+						continue;
+					} else {
+						break;
+					}
 				}
 				var domain = bps_event_get_domain (handle);
 				if (!eventHandlers.ContainsKey (domain)) {
