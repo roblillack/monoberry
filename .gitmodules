@@ -10,3 +10,6 @@
 [submodule "libffi"]
 	path = libffi
 	url = git://github.com/atgreen/libffi.git
+[submodule "opentk"]
+	path = opentk
+	url = git://github.com/roblillack/opentk.git
