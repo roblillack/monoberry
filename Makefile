@@ -1,8 +1,15 @@
 TARGET=target
-DESTDIR=/Developer/SDKs/MonoBerry
 MONOSRC=mono
-NDK=/Applications/bbndk
 PREFIX=/usr/local
+SYSTEM:=$(shell uname)
+
+ifeq (${SYSTEM}, Darwin)
+  DESTDIR=/Developer/SDKs/MonoBerry
+  NDK=/Applications/bbndk
+else
+  DESTDIR=/usr/local/share/monoberry
+  NDK=/opt/bbndk
+endif
 
 all:	cli mono libs
 
@@ -43,12 +50,12 @@ mono:	${TARGET}/lib/mono/2.0/mscorlib.dll ${TARGET}/lib/mono/4.0/mscorlib.dll ${
 
 ${TARGET}/target/x86/bin/mono: ${MONOSRC}/autogen.sh
 	echo "SKIPPING X86 BUILD -- NO SIMULATOR SUPPORT RIGHT NOW."
-	#cd ${MONOSRC} && source ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/x86/lib -L${NDK}/target/qnx6/x86/usr/lib" ./autogen.sh --host=i486-pc-nto-qnx8.0.0 --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
+	#cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/x86/lib -L${NDK}/target/qnx6/x86/usr/lib" ./autogen.sh --host=i486-pc-nto-qnx8.0.0 --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
 	#mkdir -p `dirname $@`
 	#install ${MONOSRC}/mono/mini/mono $@
 
 ${TARGET}/target/armle-v7/bin/mono: ${MONOSRC}/autogen.sh
-	cd ${MONOSRC} && source ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" ./autogen.sh --host=arm-unknown-nto-qnx8.0.0eabi --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
+	cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" ./autogen.sh --host=arm-unknown-nto-qnx8.0.0eabi --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
 	mkdir -p `dirname $@`
 	install ${MONOSRC}/mono/mini/mono $@
 
