@@ -156,9 +156,13 @@ namespace MonoBerry.Tool
 		{
 			var devices = new Dictionary<string, Device> ();
 
+			if (configSource == null || configSource.Configs == null) {
+				return devices;
+			}
+
 			foreach (var section in configSource.Configs) {
 				var sec = section as IConfig;
-				if (sec.Name.StartsWith ("device.")) {
+				if (sec != null && sec.Name.StartsWith ("device.")) {
 					var name = sec.Name.Substring ("device.".Length);
 					Architecture arch;
 					try {
