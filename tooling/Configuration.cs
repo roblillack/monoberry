@@ -60,7 +60,9 @@ namespace MonoBerry.Tool
 
 		private string FindNativeSDK ()
 		{
-			foreach (var i in new string[] { "/Applications/bbndk", "/Developer/SDKs/bbndk-10.0.4-beta" }) {
+			foreach (var i in new string[] { "/Applications/bbndk",
+                                                         "/Developer/SDKs/bbndk-10.0.4-beta",
+                                                         "/opt/bbndk" }) {
 				if (Directory.Exists (i) && File.Exists (Path.Combine (i, "bbndk-env.sh"))) {
 					return i;
 				}
