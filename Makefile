@@ -64,5 +64,6 @@ ${TARGET}/lib/mono/4.0/mscorlib.dll: ${TARGET}/lib/mono/2.0/mscorlib.dll
 ${MONOSRC}/autogen.sh: .gitmodules
 	git submodule init
 	git submodule update
+	cd ${MONOSRC} && git submodule init && git submodule update
 
 .PHONY: clean all install
