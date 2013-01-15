@@ -114,7 +114,7 @@ namespace MonoBerry.Tool
 				return Path.GetFullPath (Path.Combine (path, "..", "..", "..", "target"));
 			}
 
-			return path;
+			return Path.GetFullPath (Path.Combine (path, ".."));
 		}
 
 		private string ReadConfigSetting (string section, string key)
