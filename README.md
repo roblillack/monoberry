@@ -5,13 +5,13 @@
 
 _Mono for the BlackBerry 10 platform._
 
-###### Summary ######
+##### Summary #####
 
 * Website: http://burningsoda.com/software/monoberry/
 * GitHub: http://github.com/roblillack/monoberry
 * License: MIT X11 license
 
-###### About ######
+##### About #####
 
 MonoBerry is Mono for the BlackBerry PlayBook OS and the future BlackBerry 10
 platform. The project consists of three parts:
@@ -28,8 +28,26 @@ platform. The project consists of three parts:
 * **Tooling:** Functionality to package a .NET assembly to a BlackBerry Archive
                (`.bar` file) and integration with tools of the BlackBerry NDK.
 
+##### Building from source #####
 
-###### References ######
+###### Mac OS X ######
+
+* Install XCode and the commandline tools
+* Install the BlackBerry 10 Native SDK
+* Install Mono
+* Run `make && sudo make install`
+
+###### Linux ######
+
+These notes are specific to Ubuntu 12.04 but should easily be
+adaptable to other distributions.
+
+* Install the BlackBerry 10 Native SDK
+* Install some build requirements, including Mono:
+  `sudo apt-get install build-essential mono-complete autoconf libtool gettext openjdk-7-jre`
+* Run `make && sudo make install`
+
+##### References #####
 
 MonoBerry is standing on the shoulders of the following giants:
 
@@ -38,11 +56,10 @@ MonoBerry is standing on the shoulders of the following giants:
 * [Nini](http://nini.sourceforge.net/): .NET Configuration Library
 * to be continued …
 
-###### License ######
+##### License #####
 
-Copyright &copy; 2012 [Robert Lillack](http://roblillack.net/).
+Copyright &copy; 2012&ndash;2013 [Robert Lillack](http://roblillack.net/).
 
 Licensed under the terms of the MIT X11 license. Please see
 [LICENSE](https://github.com/roblillack/monoberry/blob/master/LICENSE)
-for more information. 
-
+for more information.
