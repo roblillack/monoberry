@@ -143,7 +143,19 @@ namespace BlackBerry.Screen
 				Console.WriteLine ("UNHANDLED SCREEN EVENT, TYPE: {0}", e.Type);
 				if (e.Type == EventType.SCREEN_EVENT_PROPERTY) {
 					Console.WriteLine (" - Name: {0}", (Property)e.GetIntProperty (Property.SCREEN_PROPERTY_NAME));
+				} else if (e.Type == EventType.SCREEN_EVENT_DEVICE ||
+				           e.Type == EventType.SCREEN_EVENT_GAMEPAD ||
+				           e.Type == EventType.SCREEN_EVENT_JOYSTICK ||
+				           e.Type == EventType.SCREEN_EVENT_POINTER) {
+					Console.WriteLine (" - Buttons: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_BUTTONS));
+				} else if (e.Type == EventType.SCREEN_EVENT_KEYBOARD) {
+					Console.WriteLine (" - CAP: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_CAP));
+					Console.WriteLine (" - FLAGS: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_FLAGS));
+					Console.WriteLine (" - MODIFIERS: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_MODIFIERS));
+					Console.WriteLine (" - SCAN: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_SCAN));
+					Console.WriteLine (" - SYM: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_SYM));
 				}
+
 				break;
 			}
 
