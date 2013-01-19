@@ -10,13 +10,13 @@ namespace helloworld
 		public static void Main (string[] args)
 		{
 			using (var nav = new Navigator ())
-			using (var ctx = new Context ())
+			using (var ctx = Context.GetInstance (ContextType.Application))
 			using (var win = new Window (ctx, WindowType.SCREEN_APPLICATION_WINDOW)) {
 				win.AddBuffers (10);
 				win.Identifier = "bla";
 				var r = new Random();
 				foreach (var b in win.Buffers) {
-					b.Fill (r.Next ());
+					b.Fill ((uint)r.Next ());
 					win.Render (b);
 					System.Threading.Thread.Sleep (200);
 				}
