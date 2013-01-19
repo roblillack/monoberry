@@ -1,3 +1,12 @@
 [submodule "mono"]
 	path = mono
 	url = git://github.com/roblillack/mono.git
+[submodule "libgdiplus"]
+	path = libgdiplus
+	url = git://github.com/roblillack/libgdiplus.git
+[submodule "glib"]
+	path = glib
+	url = git://git.gnome.org/glib
+[submodule "libffi"]
+	path = libffi
+	url = git://github.com/atgreen/libffi.git
