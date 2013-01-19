@@ -20,6 +20,7 @@ namespace BlackBerry.Screen
 		SCREEN_EVENT_UNREALIZE                 = 13,
 		SCREEN_EVENT_GAMEPAD                   = 14,
 		SCREEN_EVENT_JOYSTICK                  = 15,
+		SCREEN_EVENT_DEVICE					   = 16,
 
 		SCREEN_EVENT_MTOUCH_TOUCH              = 100,
 		SCREEN_EVENT_MTOUCH_MOVE               = 101,
