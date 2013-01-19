@@ -116,6 +116,15 @@ namespace BlackBerry.Screen
 			}
 		}
 
+		public bool KeepAwake {
+			get {
+				return GetIntProperty (Property.SCREEN_PROPERTY_IDLE_MODE) != 0;
+			}
+			set {
+				SetIntProperty (Property.SCREEN_PROPERTY_IDLE_MODE, value ? 1 : 0);
+			}
+		}
+
 		public int GetIntProperty (Property p)
 		{
 			int result;
