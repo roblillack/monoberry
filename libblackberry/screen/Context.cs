@@ -47,6 +47,9 @@ namespace BlackBerry.Screen
 		public Action<int,int> OnFingerTouch { get; set; }
 		public Action<int,int> OnFingerMove { get; set; }
 		public Action<int,int> OnFingerRelease { get; set; }
+		public Action<KeyCode,KeyModifiers> OnKeyDown { get; set; }
+		public Action<KeyCode,KeyModifiers> OnKeyRepeat { get; set; }
+		public Action<KeyCode,KeyModifiers> OnKeyUp { get; set; }
 
 		private static IDictionary<ContextType, Context> instances = new Dictionary<ContextType, Context> ();
 		IDictionary<IntPtr, Window> windows = new Dictionary<IntPtr, Window> ();
@@ -139,6 +142,22 @@ namespace BlackBerry.Screen
 					OnFingerRelease (e.X, e.Y);
 				}
 				break;
+			case EventType.SCREEN_EVENT_KEYBOARD:
+				if (OnKeyDown == null && OnKeyRepeat == null && OnKeyUp == null) {
+					break;
+				}
+				KeyFlags flags = (KeyFlags)e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_FLAGS);
+				KeyCode code = (KeyCode)e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_SYM);
+				KeyModifiers mods = (KeyModifiers)e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_MODIFIERS);
+
+				if (flags.HasFlag (KeyFlags.KEY_DOWN) && OnKeyDown != null) {
+					OnKeyDown (code, mods);
+				} else if (flags.HasFlag (KeyFlags.KEY_REPEAT) && OnKeyRepeat != null) {
+					OnKeyRepeat (code, mods);
+				} else if (OnKeyUp != null) {
+					OnKeyUp (code, mods);
+				}
+				break;
 			default:
 				Console.WriteLine ("UNHANDLED SCREEN EVENT, TYPE: {0}", e.Type);
 				if (e.Type == EventType.SCREEN_EVENT_PROPERTY) {
@@ -148,14 +167,7 @@ namespace BlackBerry.Screen
 				           e.Type == EventType.SCREEN_EVENT_JOYSTICK ||
 				           e.Type == EventType.SCREEN_EVENT_POINTER) {
 					Console.WriteLine (" - Buttons: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_BUTTONS));
-				} else if (e.Type == EventType.SCREEN_EVENT_KEYBOARD) {
-					Console.WriteLine (" - CAP: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_CAP));
-					Console.WriteLine (" - FLAGS: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_FLAGS));
-					Console.WriteLine (" - MODIFIERS: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_MODIFIERS));
-					Console.WriteLine (" - SCAN: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_SCAN));
-					Console.WriteLine (" - SYM: {0}", e.GetIntProperty (Property.SCREEN_PROPERTY_KEY_SYM));
 				}
-
 				break;
 			}
 

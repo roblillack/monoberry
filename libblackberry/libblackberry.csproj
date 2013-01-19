@@ -56,6 +56,9 @@
     <Compile Include="screen\Transparency.cs" />
     <Compile Include="screen\Display.cs" />
     <Compile Include="screen\DisplayType.cs" />
+    <Compile Include="screen\KeyFlags.cs" />
+    <Compile Include="screen\KeyCode.cs" />
+    <Compile Include="screen\KeyModifiers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
