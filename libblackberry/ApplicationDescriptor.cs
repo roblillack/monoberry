@@ -42,6 +42,16 @@ namespace BlackBerry.ApplicationDescriptor
 		}
 	}
 
+	public class IconAttribute : Attribute
+	{
+		public string Path { get; protected set; }
+		
+		public IconAttribute (string path)
+		{
+			Path = path;
+		}
+	}
+
 	public class PlatformVersionAttribute : Attribute
 	{
 		public string Version { get; protected set; }

@@ -205,6 +205,21 @@ namespace MonoBerry.Tool
 					xml.WriteEndElement ();
 				}
 
+				if (icon != null && icon.Path != null) {
+					Console.WriteLine ("ICON: {0}", icon.Path);
+					xml.WriteStartElement ("icon");
+					xml.WriteElementString ("image", icon.Path);
+					xml.WriteEndElement ();
+
+					xml.WriteStartElement ("asset");
+					xml.WriteAttributeString ("path", Path.Combine (Path.GetDirectoryName (assembly.Location), icon.Path));
+					//xml.WriteAttributeString ("entry", "true");
+					//xml.WriteAttributeString ("type", "Qnx/Elf");
+					xml.WriteString (icon.Path);
+					xml.WriteEndElement ();
+
+				}
+
 				xml.WriteStartElement ("asset");
 				xml.WriteAttributeString ("path", Path.Combine (Application.Configuration.Location, "target", arch.Name, "bin", "mono"));
 				xml.WriteAttributeString ("entry", "true");
