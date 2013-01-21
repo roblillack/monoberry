@@ -42,8 +42,11 @@ namespace MonoBerry.Tool
 				Console.CursorVisible = true;
 			}
 			if (errors.Count == 0) {
-				Run (String.Format ("ssh -i {0} devuser@{1}", Application.Configuration.SSHPrivateKey, dev.IP));
-				connection.Interrupt ();
+				try {
+					Run (String.Format ("ssh -i {0} devuser@{1}", Application.Configuration.SSHPrivateKey, dev.IP));
+				} finally {
+					connection.Interrupt ();
+				}
 			} else {
 				foreach (var i in errors) {
 					Console.Error.WriteLine (i);
@@ -71,8 +74,8 @@ namespace MonoBerry.Tool
 			                         dev.IP,
 			                         dev.Password,
 			                         Application.Configuration.SSHPublicKey);
-			try {
-				using (Process proc = new Process ()) {
+			using (Process proc = new Process ()) {
+				try {
 					var si = new ProcessStartInfo ("/bin/sh", String.Format ("-c '{0}'", cmd));
 					si.RedirectStandardOutput = true;
 					si.RedirectStandardError = true;
@@ -89,10 +92,14 @@ namespace MonoBerry.Tool
 					proc.BeginErrorReadLine ();
 					proc.WaitForExit();
 					connecting = false;
+				} catch (ThreadInterruptedException) {
+				} catch (Exception e) {
+					throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+				} finally {
+					if (!proc.HasExited) {
+						proc.Kill ();
+					}
 				}
-			} catch (ThreadInterruptedException) {
-			} catch (Exception e) {
-				throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
 			}
 		}
 
