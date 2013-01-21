@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Linq;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Xml;
@@ -15,7 +16,7 @@ namespace MonoBerry.Tool
 		}
 		
 		public override string Description {
-			get { return "Packages a Mono Assembly as BlackBery Archive."; }
+			get { return "Packages a Mono Assembly as BlackBerry Archive."; }
 		}
 
 		private static Assembly LoadAssembly (string name)
@@ -125,6 +126,9 @@ namespace MonoBerry.Tool
 			}
 
 			var platform = GetPlatformVersion (assembly) ?? "2.0.0.0";
+
+			var icon = GetAttribute<BlackBerry.ApplicationDescriptor.IconAttribute> (assembly);
+
 
 			using (var xml = new XmlTextWriter ("app-descriptor.xml", Encoding.UTF8)) {
 				xml.Formatting = Formatting.Indented;
@@ -244,10 +248,33 @@ namespace MonoBerry.Tool
 			} catch {
 				arch = Architecture.ARM;
 			}
-			CreateAppDescriptor (parameters [0], arch);
+			CreateAppDescriptor (parameters [0], arch, false);
+			var appName = Path.GetFileNameWithoutExtension (parameters [0]);
+			var pw = Application.Configuration.CSKPassword;
+			while (pw.IsEmpty ()) {
+				pw = Extensions.ReadPassword ("CSK Password (will not echo): ");
+			}
+			var cmd = String.Format ("{0}/usr/bin/blackberry-nativepackager -package {1}.bar {2} " +
+			                         "-target bar -sign -storepass \"{3}\"",
+			                         Application.Configuration.QNXHostPath,
+			                         appName,
+			                         "app-descriptor.xml",
+			                         pw);
+
+			Run (cmd);
+		}
+	
+		private static void Run (string cmd)
+		{
+			try {
+				using (Process proc = Process.Start ("/bin/sh", String.Format ("-c '{0}'", cmd))) {
+					proc.WaitForExit();
+				}
+			} catch (Exception e) {
+				throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+			}
 		}
 	}
-
 }
 
 
