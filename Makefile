@@ -3,6 +3,8 @@ MONOSRC=mono
 PREFIX=/usr/local
 SYSTEM:=$(shell uname)
 BASE:=$(shell pwd)
+ARCH_ARM:=arm-unknown-nto-qnx8.0.0eabi
+ARCH_X86:=i486-pc-nto-qnx8.0.0
 
 ifeq (${SYSTEM}, Darwin)
   DESTDIR=/Developer/SDKs/MonoBerry
@@ -19,10 +21,10 @@ cli:	${TARGET}/tool/monoberry.exe
 ${TARGET}/tool/monoberry.sh: tooling/monoberry.sh
 	cp $< $@
 
-target/tool/monoberry.exe: tooling/*.cs tooling/tool.csproj
+target/tool/monoberry.exe: tooling/tool.csproj tooling/*.cs
 	@rm -rf tooling/bin/Release
 	@echo Building MonoBerry CLI tool ...
-	@xbuild tooling/tool.csproj /p:Configuration=Release > /dev/null
+	@xbuild $< /p:Configuration=Release > /dev/null
 	@mkdir -p target/tool
 	@cp tooling/bin/Release/*.exe tooling/bin/Release/*.dll tooling/monoberry.sh ${TARGET}/tool
 
@@ -38,9 +40,9 @@ install:
 
 libs:	${TARGET}/lib/mono/4.0/libblackberry.dll
 
-${TARGET}/lib/mono/4.0/libblackberry.dll: libblackberry/*.cs libblackberry/libblackberry.csproj
+${TARGET}/lib/mono/4.0/libblackberry.dll: libblackberry/libblackberry.csproj libblackberry/*.cs
 	@echo Building libblackberry ...
-	@xbuild libblackberry/libblackberry.csproj /p:Configuration=Release > /dev/null
+	@xbuild $< /p:Configuration=Release > /dev/null
 	@mkdir -p ${TARGET}/lib/mono/4.0
 	@cp libblackberry/bin/Release/*.dll target/lib/mono/4.0
 
@@ -55,38 +57,45 @@ ${TARGET}/target/x86/bin/mono: ${MONOSRC}/autogen.sh
 	#mkdir -p `dirname $@`
 	#install ${MONOSRC}/mono/mini/mono $@
 
-libffi/arm-unknown-nto-qnx8.0.0eabi/.libs/libffi.a: libffi/configure
+libffi/${ARCH_ARM}/.libs/libffi.a: libffi/configure
 	cd libffi &&\
 	. ${NDK}/bbndk-env.sh &&\
 	env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" \
-	./configure --host=arm-unknown-nto-qnx8.0.0eabi && make
+	./configure --host=${ARCH_ARM} && make
 
-glib/glib/libglib-2.0.la: glib/autogen.sh libffi/arm-unknown-nto-qnx8.0.0eabi/.libs/libffi.a
+glib: glib/glib/libglib-2.0.la
+glib/glib/libglib-2.0.la: glib/autogen.sh libffi/${ARCH_ARM}/.libs/libffi.a
 	cp glib.cache glib/config.cache
 	cd glib &&\
 	. ${NDK}/bbndk-env.sh &&\
 	env LDFLAGS="-lsocket"\
 		CFLAGS="-DSA_RESTART=0 -D_QNX_SOURCE"\
-		LIBFFI_CFLAGS="-I${BASE}/libffi/arm-unknown-nto-qnx8.0.0eabi/include"\
-		LIBFFI_LIBS="${BASE}/libffi/arm-unknown-nto-qnx8.0.0eabi/libffi.la"\
-		./autogen.sh --enable-static=yes --enable-shared=no --host=arm-unknown-nto-qnx8.0.0eabi\
+		LIBFFI_CFLAGS="-I${BASE}/libffi/${ARCH_ARM}/include"\
+		LIBFFI_LIBS="${BASE}/libffi/${ARCH_ARM}/libffi.la"\
+		./autogen.sh --host=${ARCH_ARM} --enable-static=yes --enable-shared=yes\
 		--cache-file=config.cache &&\
 	make clean &&\
-	make
+	cd glib &&\
+	make -k || test -r .libs/libglib-2.0.a
 
+libgdiplus: ${TARGET}/target/armle-v7/lib/libgdiplus.so.0
 ${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib/glib/libglib-2.0.la
 	cd libgdiplus &&\
-	. ${NDK}/bbndk-env.sh &&\
-	env CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
-		GDIPLUS_LIBS="${BASE}/glib/glib/.libs/libglib-2.0.a -lintl -liconv"\
-		./autogen.sh --enable-static=no --enable-shared=yes --host=arm-unknown-nto-qnx8.0.0eabi &&\
-	make clean &&\
-	make
+		. ${NDK}/bbndk-env.sh &&\
+		env CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
+			./autogen.sh --enable-static=no --enable-shared=yes --host=${ARCH_ARM} &&\
+		make clean &&\
+		make
+	cd libgdiplus/src &&\
+		. ${NDK}/bbndk-env.sh &&\
+		/bin/bash ../libtool --tag=CC --mode=link ${ARCH_ARM}-gcc\
+			-o libgdiplus.la -rpath /usr/local/lib *.lo -lfontconfig\
+			../cairo/src/libcairo.la ${BASE}/glib/glib/*.lo
 	mkdir -p `dirname $@`
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
 ${TARGET}/target/armle-v7/bin/mono: ${MONOSRC}/autogen.sh
-	cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" ./autogen.sh --host=arm-unknown-nto-qnx8.0.0eabi --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
+	cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" ./autogen.sh --host=${ARCH_ARM} --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
 	mkdir -p `dirname $@`
 	install ${MONOSRC}/mono/mini/mono $@
 
@@ -106,4 +115,4 @@ libffi/configure: submodules
 submodules: .gitmodules
 	git submodule update --init --recursive
 
-.PHONY: clean all install
+.PHONY: clean all install glib libgdiplus
