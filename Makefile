@@ -154,6 +154,7 @@ ${TARGET}/lib/mono/4.0/mscorlib.dll: ${TARGET}/lib/mono/2.0/mscorlib.dll
 ${MONOSRC}/autogen.sh: submodules
 glib/autogen.sh: submodules
 libffi/configure: submodules
+libgdiplus/autogen.sh: submodules
 
 submodules: .gitmodules
 	git submodule update --init --recursive
