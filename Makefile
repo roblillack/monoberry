@@ -57,14 +57,39 @@ ${TARGET}/target/x86/bin/mono: ${MONOSRC}/autogen.sh
 	#mkdir -p `dirname $@`
 	#install ${MONOSRC}/mono/mini/mono $@
 
+libffi-arm: libffi/${ARCH_ARM}/.libs/libffi.a
 libffi/${ARCH_ARM}/.libs/libffi.a: libffi/configure
 	cd libffi &&\
 	. ${NDK}/bbndk-env.sh &&\
 	env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" \
 	./configure --host=${ARCH_ARM} && make
 
-glib: glib/glib/libglib-2.0.la
-glib/glib/libglib-2.0.la: glib/autogen.sh libffi/${ARCH_ARM}/.libs/libffi.a
+libffi-x86: libffi/${ARCH_X86}/.libs/libffi.a
+libffi/${ARCH_X86}/.libs/libffi.a: libffi/configure
+	cd libffi &&\
+	. ${NDK}/bbndk-env.sh &&\
+	env LDFLAGS="-L${NDK}/target/qnx6/x86/lib -L${NDK}/target/qnx6/x86/usr/lib" \
+	./configure --host=${ARCH_X86} && make
+
+glib-x86: tmp/glib-x86
+tmp/glib-x86: glib/autogen.sh libffi/${ARCH_X86}/.libs/libffi.a
+	cp glib.cache glib/config.cache
+	cd glib &&\
+	. ${NDK}/bbndk-env.sh &&\
+	env LDFLAGS="-lsocket"\
+		CFLAGS="-DSA_RESTART=0 -D_QNX_SOURCE"\
+		LIBFFI_CFLAGS="-I${BASE}/libffi/${ARCH_X86}/include"\
+		LIBFFI_LIBS="${BASE}/libffi/${ARCH_X86}/libffi.la"\
+		./autogen.sh --host=${ARCH_X86} --enable-static=yes --enable-shared=yes\
+		--cache-file=config.cache &&\
+	make clean &&\
+	cd glib &&\
+	make -k || test -r .libs/libglib-2.0.a
+	install -d $@
+	cp -r glib/glib/*.lo glib/glib/.libs $@
+
+glib-arm: tmp/glib-arm
+tmp/glib-arm: glib/autogen.sh libffi/${ARCH_ARM}/.libs/libffi.a
 	cp glib.cache glib/config.cache
 	cd glib &&\
 	. ${NDK}/bbndk-env.sh &&\
@@ -77,9 +102,11 @@ glib/glib/libglib-2.0.la: glib/autogen.sh libffi/${ARCH_ARM}/.libs/libffi.a
 	make clean &&\
 	cd glib &&\
 	make -k || test -r .libs/libglib-2.0.a
+	install -d $@
+	cp -r glib/glib/*.lo glib/glib/.libs $@
 
-libgdiplus: ${TARGET}/target/armle-v7/lib/libgdiplus.so.0
-${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib/glib/libglib-2.0.la
+libgdiplus-arm: ${TARGET}/target/armle-v7/lib/libgdiplus.so.0
+${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-arm
 	cd libgdiplus &&\
 		. ${NDK}/bbndk-env.sh &&\
 		env CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
@@ -90,7 +117,23 @@ ${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib/glib/l
 		. ${NDK}/bbndk-env.sh &&\
 		/bin/bash ../libtool --tag=CC --mode=link ${ARCH_ARM}-gcc\
 			-o libgdiplus.la -rpath /usr/local/lib *.lo -lfontconfig\
-			../cairo/src/libcairo.la ${BASE}/glib/glib/*.lo
+			../cairo/src/libcairo.la ${BASE}/tmp/glib-arm/*.lo
+	mkdir -p `dirname $@`
+	install libgdiplus/src/.libs/libgdiplus.so.0 $@
+
+libgdiplus-x86: ${TARGET}/target/x86/lib/libgdiplus.so.0
+${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-x86
+	cd libgdiplus &&\
+		. ${NDK}/bbndk-env.sh &&\
+		env CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
+			./autogen.sh --enable-static=no --enable-shared=yes --host=${ARCH_X86} &&\
+		make clean &&\
+		make
+	cd libgdiplus/src &&\
+		. ${NDK}/bbndk-env.sh &&\
+		/bin/bash ../libtool --tag=CC --mode=link ${ARCH_X86}-gcc\
+			-o libgdiplus.la -rpath /usr/local/lib *.lo -lfontconfig\
+			../cairo/src/libcairo.la ${BASE}/tmp/glib-x86/*.lo
 	mkdir -p `dirname $@`
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
@@ -115,4 +158,4 @@ libffi/configure: submodules
 submodules: .gitmodules
 	git submodule update --init --recursive
 
-.PHONY: clean all install glib libgdiplus
+.PHONY: clean all install glib-arm glib-x86 libgdiplus-arm libgdiplus-x86
