@@ -42,6 +42,17 @@ namespace BlackBerry.ApplicationDescriptor
 		}
 	}
 
+	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = true)]
+	public class AssetAttribute : Attribute
+	{
+		public string Path { get; protected set; }
+
+		public AssetAttribute (string path)
+		{
+			Path = path;
+		}
+	}
+
 	public class IconAttribute : Attribute
 	{
 		public string Path { get; protected set; }
@@ -58,6 +69,7 @@ namespace BlackBerry.ApplicationDescriptor
 		X86
 	}
 
+	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = true)]
 	public class NativeLibraryAttribute : Attribute
 	{
 		public string Path { get; protected set; }

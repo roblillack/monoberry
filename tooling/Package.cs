@@ -221,6 +221,14 @@ namespace MonoBerry.Tool
 					xml.WriteEndElement ();
 				}
 
+				foreach (var i in assembly.GetCustomAttributes (typeof (BlackBerry.ApplicationDescriptor.AssetAttribute), false)) {
+					var attr = (BlackBerry.ApplicationDescriptor.AssetAttribute)i;
+					Console.Out.WriteLine ("- Adding asset {0}", attr.Path);
+					xml.WriteStartElement ("asset");
+					xml.WriteAttributeString ("path", attr.Path);
+					xml.WriteString (Path.GetFileName (attr.Path));
+					xml.WriteEndElement ();
+				}
 
 				if (icon != null && icon.Path != null) {
 					Console.WriteLine ("ICON: {0}", icon.Path);
