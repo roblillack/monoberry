@@ -35,6 +35,25 @@ namespace BlackBerry.Screen
 			}
 		}
 
+		public uint DPI {
+			get {
+				var physicalSize = new int [2];
+				if (screen_get_display_property_iv(handle, Property.SCREEN_PROPERTY_PHYSICAL_SIZE, physicalSize) != 0) {
+					throw new Exception ("Unable to read physical display size.");
+				}
+
+				// Default value, according to bbutil.c
+				if (physicalSize[0] == 0 || physicalSize[1] == 0) {
+					return 170;
+				}
+				var pixels = Size;
+				var dpmm = Math.Sqrt (Math.Pow (pixels.Width, 2.0) + Math.Pow (pixels.Height, 2.0)) /
+					       Math.Sqrt (Math.Pow (physicalSize [0], 2.0) + Math.Pow (physicalSize [1], 2.0));
+
+				return (uint)Math.Ceiling (dpmm / 25.4);
+			}
+		}
+
 		int GetIntProperty (Property p)
 		{
 			int result;
