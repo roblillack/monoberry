@@ -171,7 +171,7 @@ namespace BlackBerry.Screen
 				screen_get_window_property_pv (handle, Property.SCREEN_PROPERTY_RENDER_BUFFERS, bufs);
 				var list = new List<Buffer>();
 				foreach (var i in bufs) {
-					list.Add (new Buffer (context, i));
+					list.Add (new Buffer (context, this, i));
 				}
 				return list;
 			}
@@ -204,7 +204,7 @@ namespace BlackBerry.Screen
 		{
 			var dirty = new int[] { 0, 0, Width, Height };
 			// Flushing.SCREEN_WAIT_IDLE bombs on the PlayBook, lets use 0 (undefined, but used in samples!) for now.
-			if (screen_post_window (handle, buffer.buffer, 1, dirty, Flushing.SCREEN_WAIT_IDLE) != 0) {
+			if (screen_post_window (handle, buffer.handle, 1, dirty, Flushing.SCREEN_WAIT_IDLE) != 0) {
 				throw new Exception ("Unable to render buffer to window!!");
 			}
 		}
@@ -213,7 +213,7 @@ namespace BlackBerry.Screen
 		{
 			Console.WriteLine ("Rendering {0}", rect);
 			var dirty = new int[] { rect.Left, rect.Top, rect.Width, rect.Height };
-			if (screen_post_window (handle, buf.buffer, 1, dirty, flush) != 0) {
+			if (screen_post_window (handle, buf.handle, 1, dirty, flush) != 0) {
 				throw new Exception ("Unable to render buffer to window!!");
 			}
 		}

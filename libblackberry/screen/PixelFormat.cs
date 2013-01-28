@@ -5,6 +5,38 @@ using System.Runtime.InteropServices;
 
 namespace BlackBerry.Screen
 {
+	public static class PixelFormatExtensions
+	{
+		public static PixelFormat ToBB (this System.Drawing.Imaging.PixelFormat me)
+		{
+			switch (me) {
+			case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+				return PixelFormat.SCREEN_FORMAT_RGB888;
+			case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+				return PixelFormat.SCREEN_FORMAT_RGBA8888;
+			case System.Drawing.Imaging.PixelFormat.Format32bppRgb:
+				return PixelFormat.SCREEN_FORMAT_RGBX8888;
+			default:
+				throw new Exception ("Unsupported image format: " + me);
+			}
+		}
+		
+		public static System.Drawing.Imaging.PixelFormat ToSDI (this PixelFormat me)
+		{
+			switch (me) {
+			case PixelFormat.SCREEN_FORMAT_RGB888:
+				return System.Drawing.Imaging.PixelFormat.Format24bppRgb;
+			case PixelFormat.SCREEN_FORMAT_RGBA8888:
+				return System.Drawing.Imaging.PixelFormat.Format32bppArgb;
+			case PixelFormat.SCREEN_FORMAT_RGBX8888:
+				return System.Drawing.Imaging.PixelFormat.Format32bppRgb;
+			default:
+				throw new Exception ("Unsupported image format: " + me);
+			}
+		}
+
+	}
+
 	public enum PixelFormat : int {
 		SCREEN_FORMAT_BYTE                     = 1,
         SCREEN_FORMAT_RGBA4444                 = 2,
