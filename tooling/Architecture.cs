@@ -12,6 +12,13 @@ namespace MonoBerry.Tool
 		public static readonly Architecture ARM = new Architecture ("armle-v7");
 		public static readonly Architecture X86 = new Architecture ("x86");
 
+		public bool Matches (BlackBerry.ApplicationDescriptor.Architecture arch)
+		{
+			return (arch == BlackBerry.ApplicationDescriptor.Architecture.ALL ||
+			        (this == ARM && arch == BlackBerry.ApplicationDescriptor.Architecture.ARM) ||
+			        (this == X86 && arch == BlackBerry.ApplicationDescriptor.Architecture.X86));
+		}
+
 		public static Architecture FromName (string name)
 		{
 			if (name == null) {

@@ -209,6 +209,19 @@ namespace MonoBerry.Tool
 					xml.WriteEndElement ();
 				}
 
+				foreach (var i in assembly.GetCustomAttributes (typeof (BlackBerry.ApplicationDescriptor.NativeLibraryAttribute), false)) {
+					var attr = (BlackBerry.ApplicationDescriptor.NativeLibraryAttribute)i;
+					if (!arch.Matches (attr.Architecture)) {
+						continue;
+					}
+					Console.Out.WriteLine ("- Adding native library {0}", attr.Path);
+					xml.WriteStartElement ("asset");
+					xml.WriteAttributeString ("path", attr.Path);
+					xml.WriteString ("lib/" + Path.GetFileName (attr.Path));
+					xml.WriteEndElement ();
+				}
+
+
 				if (icon != null && icon.Path != null) {
 					Console.WriteLine ("ICON: {0}", icon.Path);
 					xml.WriteStartElement ("icon");

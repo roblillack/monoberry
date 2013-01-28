@@ -52,6 +52,30 @@ namespace BlackBerry.ApplicationDescriptor
 		}
 	}
 
+	public enum Architecture {
+		ALL,
+		ARM,
+		X86
+	}
+
+	public class NativeLibraryAttribute : Attribute
+	{
+		public string Path { get; protected set; }
+		public Architecture Architecture;
+		
+		public NativeLibraryAttribute (Architecture arch, string path)
+		{
+			Architecture = arch;
+			Path = path;
+		}
+
+		public NativeLibraryAttribute (string path)
+		{
+			Architecture = BlackBerry.ApplicationDescriptor.Architecture.ALL;
+			Path = path;
+		}
+	}
+
 	public class PlatformVersionAttribute : Attribute
 	{
 		public string Version { get; protected set; }
