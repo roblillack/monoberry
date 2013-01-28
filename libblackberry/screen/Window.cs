@@ -211,7 +211,6 @@ namespace BlackBerry.Screen
 
 		public void Render (Buffer buf, Rectangle rect, Flushing flush)
 		{
-			Console.WriteLine ("Rendering {0}", rect);
 			var dirty = new int[] { rect.Left, rect.Top, rect.Width, rect.Height };
 			if (screen_post_window (handle, buf.handle, 1, dirty, flush) != 0) {
 				throw new Exception ("Unable to render buffer to window!!");
