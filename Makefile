@@ -86,7 +86,7 @@ tmp/glib-x86: glib/autogen.sh libffi/${ARCH_X86}/.libs/libffi.a
 	cd glib &&\
 	make -k || test -r .libs/libglib-2.0.a
 	install -d $@
-	cp -r glib/glib/*.lo glib/glib/.libs $@
+	cp -r glib/glib/*.lo glib/glib/.libs glib/glib/pcre/*.lo glib/glib/pcre/.libs $@
 
 glib-arm: tmp/glib-arm
 tmp/glib-arm: glib/autogen.sh libffi/${ARCH_ARM}/.libs/libffi.a
@@ -103,7 +103,7 @@ tmp/glib-arm: glib/autogen.sh libffi/${ARCH_ARM}/.libs/libffi.a
 	cd glib &&\
 	make -k || test -r .libs/libglib-2.0.a
 	install -d $@
-	cp -r glib/glib/*.lo glib/glib/.libs $@
+	cp -r glib/glib/*.lo glib/glib/.libs glib/glib/pcre/*.lo glib/glib/pcre/.libs $@
 
 libgdiplus-arm: ${TARGET}/target/armle-v7/lib/libgdiplus.so.0
 ${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-arm
@@ -117,7 +117,7 @@ ${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-arm
 		. ${NDK}/bbndk-env.sh &&\
 		/bin/bash ../libtool --tag=CC --mode=link ${ARCH_ARM}-gcc\
 			-o libgdiplus.la -rpath /usr/local/lib *.lo -lfontconfig\
-			../cairo/src/libcairo.la ${BASE}/tmp/glib-arm/*.lo
+			../cairo/src/libcairo.la ${BASE}/tmp/glib-arm/*.lo -lpng
 	mkdir -p `dirname $@`
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
@@ -133,7 +133,7 @@ ${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-x86
 		. ${NDK}/bbndk-env.sh &&\
 		/bin/bash ../libtool --tag=CC --mode=link ${ARCH_X86}-gcc\
 			-o libgdiplus.la -rpath /usr/local/lib *.lo -lfontconfig\
-			../cairo/src/libcairo.la ${BASE}/tmp/glib-x86/*.lo
+			../cairo/src/libcairo.la ${BASE}/tmp/glib-x86/*.lo -png
 	mkdir -p `dirname $@`
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
