@@ -59,6 +59,9 @@ namespace BlackBerry
 		static extern int navigator_request_events (int flags);
 
 		[DllImport ("bps")]
+		static extern int navigator_stop_events (int flags);
+
+		[DllImport ("bps")]
 		static extern int navigator_invoke(string uri,
 		                                   /*out*/ IntPtr err);
 
@@ -78,7 +81,8 @@ namespace BlackBerry
 		[DllImport ("bps")]
 		static extern int navigator_get_domain ();
 
-		private int eventDomain;
+		private int eventDomain = 0;
+		private const int ALL_EVENTS = 0;
 
 		public Action OnExit;
 		public Action OnSwipeDown;
@@ -86,9 +90,24 @@ namespace BlackBerry
 		public Navigator ()
 		{
 			PlatformServices.Initialize ();
-			navigator_request_events (0);
-			eventDomain = navigator_get_domain ();
-			PlatformServices.AddEventHandler (eventDomain, HandleEvent);
+			RequestEvents = true;
+		}
+
+		public bool RequestEvents {
+			get {
+				return eventDomain != 0;
+			}
+			set {
+				if (value && eventDomain == 0) {
+					navigator_request_events (ALL_EVENTS);
+					eventDomain = navigator_get_domain ();
+					PlatformServices.AddEventHandler (eventDomain, HandleEvent);
+				} else {
+					navigator_stop_events (ALL_EVENTS);
+					PlatformServices.RemoveEventHandler (eventDomain);
+					eventDomain = 0;
+				}
+			}
 		}
 
 		public void AddUri (string iconPath, string iconLabel, string defaultCategory, string url)
