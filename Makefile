@@ -117,7 +117,7 @@ ${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-arm
 		. ${NDK}/bbndk-env.sh &&\
 		/bin/bash ../libtool --tag=CC --mode=link ${ARCH_ARM}-gcc\
 			-o libgdiplus.la -rpath /usr/local/lib *.lo -lfontconfig\
-			../cairo/src/libcairo.la ${BASE}/tmp/glib-arm/*.lo -lpng
+			../cairo/src/libcairo.la ${BASE}/tmp/glib-arm/*.lo -lpng -ljpeg
 	mkdir -p `dirname $@`
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
@@ -133,7 +133,7 @@ ${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-x86
 		. ${NDK}/bbndk-env.sh &&\
 		/bin/bash ../libtool --tag=CC --mode=link ${ARCH_X86}-gcc\
 			-o libgdiplus.la -rpath /usr/local/lib *.lo -lfontconfig\
-			../cairo/src/libcairo.la ${BASE}/tmp/glib-x86/*.lo -png
+			../cairo/src/libcairo.la ${BASE}/tmp/glib-x86/*.lo -lpng -ljpeg
 	mkdir -p `dirname $@`
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
