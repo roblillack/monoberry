@@ -60,6 +60,7 @@
     <Compile Include="screen\KeyModifiers.cs" />
     <Compile Include="NotificationLight.cs" />
     <Compile Include="Vibration.cs" />
+    <Compile Include="SoundPlayer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
