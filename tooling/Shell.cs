@@ -41,6 +41,7 @@ namespace MonoBerry.Tool
 				Console.WriteLine ();
 				Console.CursorVisible = true;
 			}
+			Thread.Sleep (1000);
 			if (errors.Count == 0) {
 				try {
 					Run (String.Format ("ssh -i {0} devuser@{1}", Application.Configuration.SSHPrivateKey, dev.IP));
