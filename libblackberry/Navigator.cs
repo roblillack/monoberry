@@ -55,6 +55,18 @@ namespace BlackBerry
 			Splat = 0
 		}
 
+		public enum ScreenOrientation {
+			Landscape = 0,
+      		Portrait = 1
+		}
+
+		public enum ApplicationOrientation {
+      		TopUp = 0,
+     		RightUp = 90,
+     		BottomUp = 180,
+      		LeftUp = 270
+		}
+
 		[DllImport ("bps")]
 		static extern int navigator_request_events (int flags);
 
@@ -80,6 +92,15 @@ namespace BlackBerry
 
 		[DllImport ("bps")]
 		static extern int navigator_get_domain ();
+
+		[DllImport ("bps")]
+		static extern int navigator_set_orientation (ApplicationOrientation angle, IntPtr id);
+
+		[DllImport ("bsp")]
+		static extern int navigator_set_orientation_mode (ScreenOrientation mode, IntPtr id);
+
+		[DllImport ("bsp")]
+		static extern int navigator_set_lock_mode (bool locked);
 
 		private int eventDomain = 0;
 		private const int ALL_EVENTS = 0;
@@ -160,6 +181,22 @@ namespace BlackBerry
 		public void Dispose ()
 		{
 			PlatformServices.RemoveEventHandler (eventDomain);
+		}
+
+		public void SetOrientation (ScreenOrientation mode)
+		{
+			navigator_set_orientation_mode (mode, IntPtr.Zero);
+		}
+
+		public void SetOrientation (ApplicationOrientation angle)
+		{
+			navigator_set_orientation (angle, IntPtr.Zero);
+		}
+
+		public bool OrientationLock {
+			set {
+				navigator_set_lock_mode (value);
+			}
 		}
 	}
 }
