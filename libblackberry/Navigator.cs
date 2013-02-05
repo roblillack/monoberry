@@ -135,6 +135,11 @@ namespace BlackBerry
 			var type = (EventType)new Event (eventHandle).Code;
 
 			switch (type) {
+			case EventType.NAVIGATOR_LOW_MEMORY:
+				Console.WriteLine ("Navigator is afraid the mem could be too low, running GC.");
+				GC.Collect();
+      			GC.WaitForPendingFinalizers();
+				break;
 			case EventType.NAVIGATOR_EXIT:
 				if (OnExit != null) {
 					OnExit ();
