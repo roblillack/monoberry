@@ -143,9 +143,21 @@ namespace MonoBerry.Tool
 					xml.WriteElementString ("authorId", Application.Configuration.Get ("author_id"));
 				}
 
+				var permissions = GetAttribute<RequestedPermissionsAttribute> (assembly);
+				if (permissions != null) {
+					foreach (var i in permissions.Functions) {
+						Console.WriteLine ("- Requested permission: {0}", i.ToString ());
+						xml.WriteElementString ("permission", i.GetValue ());
+					}
+				}
+
 				xml.WriteStartElement ("initialWindow");
 				xml.WriteElementString ("systemChrome", "none");
 				xml.WriteElementString ("transparent", "true");
+				var aspectRatio = GetAttributeValue<AspectRatioAttribute> (assembly);
+				if (aspectRatio != null) {
+					xml.WriteElementString ("aspectRatio", aspectRatio);
+				}
 				xml.WriteEndElement ();
 
 				xml.WriteStartElement ("env");
