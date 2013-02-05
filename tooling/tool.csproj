@@ -61,9 +61,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\libblackberry\libblackberry.csproj">
-      <Project>{64023C1F-A532-4ED6-9CBA-95AE61B5B9DE}</Project>
-      <Name>libblackberry</Name>
+    <ProjectReference Include="..\libappdesc\libappdesc.csproj">
+      <Project>{A772868A-49A8-44CC-9DEC-D924A4A38625}</Project>
+      <Name>libappdesc</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

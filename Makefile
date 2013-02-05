@@ -38,7 +38,13 @@ install:
 	@printf '#!/bin/sh\nmono '${DESTDIR}'/tool/monoberry.exe $$@\n' > ${PREFIX}/bin/monoberry
 	@chmod a+rx ${PREFIX}/bin/monoberry
 
-libs:	${TARGET}/lib/mono/4.0/libblackberry.dll
+libs:	${TARGET}/lib/mono/4.0/libblackberry.dll ${TARGET}/lib/mono/4.0/libappdesc.dll
+
+${TARGET}/lib/mono/4.0/libappdesc.dll: libappdesc/libappdesc.csproj libappdesc/*.cs
+	@echo Building libappdesc ...
+	@xbuild $< /p:Configuration=Release > /dev/null
+	@mkdir -p ${TARGET}/lib/mono/4.0
+	@cp libappdesc/bin/Release/*.dll target/lib/mono/4.0
 
 ${TARGET}/lib/mono/4.0/libblackberry.dll: libblackberry/libblackberry.csproj libblackberry/*.cs
 	@echo Building libblackberry ...

@@ -18,27 +18,52 @@ namespace BlackBerry.ApplicationDescriptor
 		}
 	}
 
-	public enum Action {
+	public enum RestrictedFunctionality {
 		AccessSharedData,
 		RecordAudio,
 		ReadGeoLocation,
 		UseCamera,
 		AccessInternet,
-		PlayAudio,
 		PostNotifications,
-		SetAudioVolume,
 		ReadDeviceIdentifyingInformation,
-		AccessLedControl
+		AccessNotificationLight
+	}
+
+	public static class RestrictedFunctionalityExt
+	{
+		public static string GetValue (this RestrictedFunctionality me)
+		{
+			switch (me) {
+			case RestrictedFunctionality.AccessSharedData:
+				return "access_shared";
+			case RestrictedFunctionality.RecordAudio:
+				return "record_audio";
+			case RestrictedFunctionality.ReadGeoLocation:
+				return "read_geolocation";
+			case RestrictedFunctionality.UseCamera:
+				return "use_camera";
+			case RestrictedFunctionality.AccessInternet:
+				return "access_internet";
+			case RestrictedFunctionality.PostNotifications:
+				return "post_notification";
+			case RestrictedFunctionality.ReadDeviceIdentifyingInformation:
+				return "read_device_identifying_information";
+			case RestrictedFunctionality.AccessNotificationLight:
+				return "access_led_control";
+			default:
+				throw new System.ArgumentException ();
+			}
+		}
 	}
 
 	public class RequestedPermissionsAttribute : Attribute
 	{
 
-		public ISet<Action> Actions { get; protected set; }
+		public ISet<RestrictedFunctionality> Functions { get; protected set; }
 
-		public RequestedPermissionsAttribute (params Action[] actions)
+		public RequestedPermissionsAttribute (params RestrictedFunctionality[] actions)
 		{
-			Actions = new HashSet<Action> (actions);
+			Functions = new HashSet<RestrictedFunctionality> (actions);
 		}
 	}
 
@@ -60,6 +85,26 @@ namespace BlackBerry.ApplicationDescriptor
 		public IconAttribute (string path)
 		{
 			Path = path;
+		}
+	}
+
+	public enum AspectRatio {
+		LANDSCAPE,
+		PORTRAIT
+	}
+
+	public class AspectRatioAttribute : Attribute
+	{
+		public AspectRatio AspectRatio { get; protected set; }
+		
+		public AspectRatioAttribute (AspectRatio ar)
+		{
+			AspectRatio = ar;
+		}
+
+		public override string ToString ()
+		{
+			return AspectRatio.ToString ().ToLower ();
 		}
 	}
 

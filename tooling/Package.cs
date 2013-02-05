@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 using System.Text;
+using BlackBerry.ApplicationDescriptor;
 
 namespace MonoBerry.Tool
 {
@@ -44,13 +45,13 @@ namespace MonoBerry.Tool
 			}
 
 			assemblies.Add (assembly);
-			System.Console.WriteLine ("Adding {0}", assembly.FullName);
+			Console.WriteLine ("Adding {0}", assembly.FullName);
 			foreach (var i in assembly.GetReferencedAssemblies ()) {
 				/*var ignored = new HashSet<string> (new string[]{"Mono.Security", "System.Configuration"});
 				if (ignored.Contains (i.Name)) {
 					continue;
 				}*/
-				System.Console.WriteLine (" - {0}", i.Name);
+				Console.WriteLine (" - {0}", i.Name);
 				//assemblies.Add (LoadAssembly (i.Name));
 				//LoadDependencies (LoadAssembly (i.Name), assemblies);
 				LoadDependencies (LoadAssembly (i), assemblies);
@@ -59,30 +60,25 @@ namespace MonoBerry.Tool
 
 		private static T GetAttribute<T> (Assembly assembly) where T : Attribute
 		{
-			foreach (var i in assembly.GetCustomAttributes (typeof (T), false)) {
-				return (T)i;
+			foreach (var i in assembly.GetCustomAttributes (false)) {
+				if (i.GetType ().Namespace == typeof (T).Namespace &&
+				    i.GetType ().Name == typeof (T).Name) {
+					if (!i.GetType ().Equals (typeof (T))) {
+						throw new NotSupportedException ("Assembly references incompatible MonoBerry libappdesc.dll!");
+					}
+					// Somehow looks evil, right? :-)
+					return (T)i;
+				}
 			}
 
 			return (T)null;
 		}
 
-		private static string GetApplicationIdentifier (Assembly assembly)
+		private static string GetAttributeValue<T> (Assembly assembly) where T : Attribute
 		{
 			foreach (var i in assembly.GetCustomAttributes (false)) {
-				if (i.GetType ().Namespace == "BlackBerry.ApplicationDescriptor" &&
-				    i.GetType ().Name == "ApplicationIdentifierAttribute") {
-					return i.ToString ();
-				}
-			}
-
-			return null;
-		}
-
-		private static string GetPlatformVersion (Assembly assembly)
-		{
-			foreach (var i in assembly.GetCustomAttributes (false)) {
-				if (i.GetType ().Namespace == "BlackBerry.ApplicationDescriptor" &&
-				    i.GetType ().Name == "PlatformVersionAttribute") {
+				if (i.GetType ().Namespace == typeof (T).Namespace &&
+				    i.GetType ().Name == typeof (T).Name) {
 					return i.ToString ();
 				}
 			}
@@ -113,7 +109,7 @@ namespace MonoBerry.Tool
 				Console.WriteLine ("- Location: {0}", i.Location);
 			}
 
-			var id = GetApplicationIdentifier (assembly);
+			var id = GetAttributeValue<ApplicationIdentifierAttribute> (assembly);
 			if (id == null || id.Length < 10) {
 				Console.Error.WriteLine ("Application Identifier not specified or too short.");
 				return;
@@ -125,9 +121,9 @@ namespace MonoBerry.Tool
 				return;
 			}
 
-			var platform = GetPlatformVersion (assembly) ?? "2.0.0.0";
+			var platform = GetAttributeValue<PlatformVersionAttribute> (assembly) ?? "2.0.0.0";
 
-			var icon = GetAttribute<BlackBerry.ApplicationDescriptor.IconAttribute> (assembly);
+			var icon = GetAttribute<IconAttribute> (assembly);
 
 
 			using (var xml = new XmlTextWriter ("app-descriptor.xml", Encoding.UTF8)) {
