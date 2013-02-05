@@ -25,8 +25,7 @@ namespace BlackBerry.ApplicationDescriptor
 		UseCamera,
 		AccessInternet,
 		PostNotifications,
-		ReadDeviceIdentifyingInformation,
-		AccessNotificationLight
+		ReadDeviceIdentifyingInformation
 	}
 
 	public static class RestrictedFunctionalityExt
@@ -48,8 +47,6 @@ namespace BlackBerry.ApplicationDescriptor
 				return "post_notification";
 			case RestrictedFunctionality.ReadDeviceIdentifyingInformation:
 				return "read_device_identifying_information";
-			case RestrictedFunctionality.AccessNotificationLight:
-				return "access_led_control";
 			default:
 				throw new System.ArgumentException ();
 			}
