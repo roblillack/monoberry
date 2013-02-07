@@ -107,6 +107,7 @@ namespace BlackBerry
 
 		public Action OnExit;
 		public Action OnSwipeDown;
+		public Action<InvokeTargetReply> OnInvokeResult;
 
 		public Navigator ()
 		{
@@ -141,6 +142,11 @@ namespace BlackBerry
 			navigator_invoke (uri, IntPtr.Zero);
 		}
 
+		public void Invoke (InvokeRequest invocation)
+		{
+			InvokeRequest.navigator_invoke_invocation_send (invocation.handle);
+		}
+
 		public bool HasBadge {
 			set {
 				if (value) {
@@ -171,6 +177,11 @@ namespace BlackBerry
 					OnSwipeDown ();
 				}
 				break;
+			case EventType.NAVIGATOR_INVOKE_TARGET_RESULT:
+				if (OnInvokeResult != null) {
+					OnInvokeResult (new InvokeTargetReply (eventHandle));
+				}
+				break;
 			default:
 				Console.WriteLine ("UNHANDLED NAVIGATOR EVENT, TYPE: {0}", type);
 				break;
@@ -199,5 +210,7 @@ namespace BlackBerry
 			}
 		}
 	}
+	
+
 }
 
