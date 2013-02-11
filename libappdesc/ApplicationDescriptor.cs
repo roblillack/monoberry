@@ -130,6 +130,19 @@ namespace BlackBerry.ApplicationDescriptor
 		}
 	}
 
+	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = true)]
+	public class EnvironmentVariableAttribute : Attribute
+	{
+		public string Name { get; protected set; }
+		public string Value { get; protected set; }
+
+		public EnvironmentVariableAttribute (string name, string value)
+		{
+			Name = name;
+			Value = value;
+		}
+	}
+
 	public class PlatformVersionAttribute : Attribute
 	{
 		public string Version { get; protected set; }

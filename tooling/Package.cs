@@ -60,18 +60,24 @@ namespace MonoBerry.Tool
 
 		private static T GetAttribute<T> (Assembly assembly) where T : Attribute
 		{
+			foreach (var i in GetAttributes<T> (assembly)) {
+				return i;
+			}
+
+			return (T)null;
+		}
+
+		private static IEnumerable<T> GetAttributes<T> (Assembly assembly) where T : Attribute
+		{
 			foreach (var i in assembly.GetCustomAttributes (false)) {
 				if (i.GetType ().Namespace == typeof (T).Namespace &&
 				    i.GetType ().Name == typeof (T).Name) {
 					if (!i.GetType ().Equals (typeof (T))) {
 						throw new NotSupportedException ("Assembly references incompatible MonoBerry libappdesc.dll!");
 					}
-					// Somehow looks evil, right? :-)
-					return (T)i;
+					yield return (T)i;
 				}
 			}
-
-			return (T)null;
 		}
 
 		private static string GetAttributeValue<T> (Assembly assembly) where T : Attribute
@@ -160,6 +166,14 @@ namespace MonoBerry.Tool
 				}
 				xml.WriteEndElement ();
 
+				foreach (var i in GetAttributes<EnvironmentVariableAttribute> (assembly)) {
+					Console.WriteLine ("- Environment Variable: {0}={1}", i.Name, i.Value);
+					xml.WriteStartElement ("env");
+					xml.WriteAttributeString ("var", i.Name);
+					xml.WriteAttributeString ("value", i.Value);
+					xml.WriteEndElement ();
+				}
+
 				xml.WriteStartElement ("env");
 				xml.WriteAttributeString ("var", "MONO_PATH");
 				xml.WriteAttributeString ("value", "app/native/lib");
@@ -169,18 +183,6 @@ namespace MonoBerry.Tool
 				xml.WriteAttributeString ("var", "LD_LIBRARY_PATH");
 				xml.WriteAttributeString ("value", "/lib:/usr/lib/:app/native/lib");
 				xml.WriteEndElement ();
-
-				if (devMode) {
-					xml.WriteStartElement ("env");
-					xml.WriteAttributeString ("var", "MONO_TRACE_LISTENER");
-					xml.WriteAttributeString ("value", "Console.Out");
-					xml.WriteEndElement ();
-
-					//xml.WriteStartElement ("env");
-					//xml.WriteAttributeString ("var", "MONO_LOG_LEVEL");
-					//xml.WriteAttributeString ("value", "debug");
-					//xml.WriteEndElement ();
-				}
 
 				string monopath = null;
 				string monoplat = "4.0";
