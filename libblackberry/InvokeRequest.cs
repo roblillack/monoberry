@@ -11,6 +11,7 @@ namespace BlackBerry
 
 		[DllImport ("bps")]
 		static extern int navigator_invoke_invocation_set_action (InvocationHandle hndl, string action);
+
 		[DllImport ("bps")]
 		static extern string navigator_invoke_invocation_get_action (InvocationHandle hndl);
 
@@ -23,10 +24,16 @@ namespace BlackBerry
 		static extern int navigator_invoke_invocation_set_data (InvocationHandle hndl, byte[] data);
 
 		[DllImport ("bps")]
+		static extern int navigator_invoke_invocation_set_metadata (InvocationHandle hndl, string metadata);
+
+		[DllImport ("bps")]
 		static extern int navigator_invoke_invocation_set_uri (InvocationHandle hndl, string uri);
 
 		[DllImport ("bps")]
 		static extern int navigator_invoke_invocation_set_target (InvocationHandle hndl, string target);
+
+		[DllImport ("bps")]
+		static extern int navigator_invoke_invocation_set_source (InvocationHandle hndl, string source);
 
 		[DllImport ("bps")]
 		internal static extern int navigator_invoke_invocation_send (InvocationHandle hndl);
@@ -78,11 +85,24 @@ namespace BlackBerry
 			}
 		}
 
+		public string Source {
+			set {
+				navigator_invoke_invocation_set_source (handle, value);
+			}
+		}
+
 		public byte[] Data {
 			set {
 				navigator_invoke_invocation_set_data (handle, value);
 			}
 		}
+
+		public string Metadata {
+			set {
+				navigator_invoke_invocation_set_metadata (handle, value);
+			}
+		}
+
 
 		public void Dispose ()
 		{

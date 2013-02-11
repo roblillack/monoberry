@@ -8,7 +8,7 @@
     <ProjectGuid>{800B07B8-353D-4F6E-81A5-A55FFB6E1EE3}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>invocationtest</RootNamespace>
-    <AssemblyName>invocation-test</AssemblyName>
+    <AssemblyName>invocation</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>

@@ -19,6 +19,7 @@ namespace BlackBerry
 		{
 			switch (id) {
 			case null:
+			case "":
 				return BlackBerry.InvokeReplyError.NoError;
 			case "INVOKE_BAD_REQUEST_ERROR":
 				return BlackBerry.InvokeReplyError.BadRequest;
