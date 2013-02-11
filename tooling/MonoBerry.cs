@@ -91,7 +91,12 @@ namespace MonoBerry.Tool
 			}
 			
 			app.RegisterCommands (Assembly.GetExecutingAssembly ());
-			app.Execute(cmd, parameters);
+			try {
+				app.Execute (cmd, parameters);
+			} catch (Command.Error e) {
+				Console.Error.WriteLine ("ERROR: {0}", e.Message);
+				Environment.Exit (1);
+			}
 		}
 
 		private static T ReadAttrib<T> ()
