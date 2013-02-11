@@ -16,7 +16,7 @@ using System.Runtime.CompilerServices;
 // <id>: Unique Identifier of the Application
 [assembly: ApplicationIdentifier ("com.burningsoda.monoberry.helloworld")]
 // <action> …
-[assembly: RequestedPermissions (Action.AccessInternet, Action.UseCamera)]
+[assembly: RequestedPermissions (RestrictedFunctionality.AccessInternet, RestrictedFunctionality.UseCamera)]
 
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,

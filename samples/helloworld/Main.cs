@@ -50,10 +50,12 @@ namespace helloworld
 
 		public static void Cam ()
 		{
-			using (var c = new Camera (Camera.Unit.Front, Camera.Mode.RW)) {
+			/*using (var c = new Camera (Camera.Unit.Front, Camera.Mode.RW)) {
 				c.TakePhoto ();
 			}
-			Dialog.Alert ("OMFG", "I got camera!1!1", new Button ("Ok!"));
+			Dialog.Alert ("OMFG", "I got camera!1!1", new Button ("Ok!"));*/
+
+
 		}
 	}
 }
