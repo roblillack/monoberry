@@ -181,7 +181,7 @@ namespace MonoBerry.Tool
 
 				xml.WriteStartElement ("env");
 				xml.WriteAttributeString ("var", "LD_LIBRARY_PATH");
-				xml.WriteAttributeString ("value", "/lib:/usr/lib/:app/native/lib");
+				xml.WriteAttributeString ("value", "app/native/lib:/usr/lib/qt4/lib:/lib:/usr/lib");
 				xml.WriteEndElement ();
 
 				string monopath = null;
