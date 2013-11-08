@@ -143,6 +143,11 @@ ${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-x86
 	mkdir -p `dirname $@`
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
+rebuild-mono-arm:
+	cd ${MONOSRC} &&\
+		. ${NDK}/bbndk-env.sh &&\
+		env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" make
+
 ${TARGET}/target/armle-v7/bin/mono: ${MONOSRC}/autogen.sh
 	cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" ./autogen.sh --host=${ARCH_ARM} --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
 	mkdir -p `dirname $@`
