@@ -1,3 +1,4 @@
+PROJECT=monoberry
 TARGET=target
 MONOSRC=mono
 PREFIX=/usr/local
@@ -18,6 +19,10 @@ else
   ACLOCAL_FLAGS=
 endif
 
+TREE:=$(or $(shell git for-each-ref --sort='-*authordate' --format='%(tag)' refs/tags --count=1),HEAD)
+RELEASE_NAME:=$(shell echo ${PROJECT}-${TREE}.tgz)
+SRC_NAME:=${PROJECT}-${TREE}-src.tgz
+
 all:	cli mono libs
 
 cli:	${TARGET}/tool/monoberry.exe
@@ -37,10 +42,13 @@ clean:
 	@rm -f ${PREFIX}/bin/monoberry
 
 install:
-	@mkdir -p ${DESTDIR}
-	@cp -r ${TARGET}/* ${DESTDIR}
-	@printf '#!/bin/sh\nmono '${DESTDIR}'/tool/monoberry.exe $$@\n' > ${PREFIX}/bin/monoberry
-	@chmod a+rx ${PREFIX}/bin/monoberry
+	@sh install.sh
+
+release:
+	@echo Building release ${TREE} ...
+	@env COPYFILE_DISABLE=true tar c target install.sh README.md LICENSE | gzip -9 > ${RELEASE_NAME}
+	@git archive ${TREE} | gzip -9 > ${SRC_NAME}
+	@du -sh ${RELEASE_NAME} ${SRC_NAME}
 
 libs:	${TARGET}/lib/mono/4.0/libblackberry.dll ${TARGET}/lib/mono/4.0/libappdesc.dll
 
