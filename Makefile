@@ -9,9 +9,13 @@ ARCH_X86:=i486-pc-nto-qnx8.0.0
 ifeq (${SYSTEM}, Darwin)
   DESTDIR=/Developer/SDKs/MonoBerry
   NDK=/Applications/bbndk
+  LIBTOOLIZE=glibtoolize
+  ACLOCAL_FLAGS="-I/usr/local/share/aclocal"
 else
   DESTDIR=/usr/local/share/monoberry
   NDK=/opt/bbndk
+  LIBTOOLIZE=
+  ACLOCAL_FLAGS=
 endif
 
 all:	cli mono libs
@@ -115,7 +119,7 @@ libgdiplus-arm: ${TARGET}/target/armle-v7/lib/libgdiplus.so.0
 ${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-arm
 	cd libgdiplus &&\
 		. ${NDK}/bbndk-env.sh &&\
-		env CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
+		env LIBTOOLIZE=${LIBTOOLIZE} ACLOCAL_FLAGS=${ACLOCAL_FLAGS} CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
 			./autogen.sh --enable-static=no --enable-shared=yes --host=${ARCH_ARM} &&\
 		make clean &&\
 		make
@@ -131,7 +135,7 @@ libgdiplus-x86: ${TARGET}/target/x86/lib/libgdiplus.so.0
 ${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-x86
 	cd libgdiplus &&\
 		. ${NDK}/bbndk-env.sh &&\
-		env CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
+		env LIBTOOLIZE=${LIBTOOLIZE} ACLOCAL_FLAGS=${ACLOCAL_FLAGS} CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
 			./autogen.sh --enable-static=no --enable-shared=yes --host=${ARCH_X86} &&\
 		make clean &&\
 		make
