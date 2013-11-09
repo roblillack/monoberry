@@ -21,7 +21,6 @@ endif
 
 TREE:=$(or $(shell git for-each-ref --sort='-*authordate' --format='%(tag)' refs/tags --count=1),HEAD)
 RELEASE_NAME:=$(shell echo ${PROJECT}-${TREE}.tgz)
-SRC_NAME:=${PROJECT}-${TREE}-src.tgz
 
 all:	cli mono libs
 
@@ -44,11 +43,10 @@ clean:
 install:
 	@sh install.sh
 
-release:
+release:	all
 	@echo Building release ${TREE} ...
 	@env COPYFILE_DISABLE=true tar c target install.sh README.md LICENSE | gzip -9 > ${RELEASE_NAME}
-	@git archive ${TREE} | gzip -9 > ${SRC_NAME}
-	@du -sh ${RELEASE_NAME} ${SRC_NAME}
+	@du -sh ${RELEASE_NAME}
 
 libs:	${TARGET}/lib/mono/4.0/libblackberry.dll ${TARGET}/lib/mono/4.0/libappdesc.dll
 
