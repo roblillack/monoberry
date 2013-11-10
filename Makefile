@@ -15,7 +15,7 @@ ifeq (${SYSTEM}, Darwin)
 else
   DESTDIR=/usr/local/share/monoberry
   NDK=/opt/bbndk
-  LIBTOOLIZE=
+  LIBTOOLIZE=libtoolize
   ACLOCAL_FLAGS=
 endif
 
