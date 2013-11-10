@@ -126,7 +126,7 @@ ${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-arm
 	cd libgdiplus &&\
 		. ${NDK}/bbndk-env.sh &&\
 		env LIBTOOLIZE=${LIBTOOLIZE} ACLOCAL_FLAGS=${ACLOCAL_FLAGS} CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
-			./autogen.sh --enable-static=no --enable-shared=yes --host=${ARCH_ARM} &&\
+			./autogen.sh --with-intcairo --enable-static=no --enable-shared=yes --host=${ARCH_ARM} &&\
 		make clean &&\
 		make
 	cd libgdiplus/src &&\
@@ -142,7 +142,7 @@ ${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-x86
 	cd libgdiplus &&\
 		. ${NDK}/bbndk-env.sh &&\
 		env LIBTOOLIZE=${LIBTOOLIZE} ACLOCAL_FLAGS=${ACLOCAL_FLAGS} CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
-			./autogen.sh --enable-static=no --enable-shared=yes --host=${ARCH_X86} &&\
+			./autogen.sh --with-intcairo --enable-static=no --enable-shared=yes --host=${ARCH_X86} &&\
 		make clean &&\
 		make
 	cd libgdiplus/src &&\
