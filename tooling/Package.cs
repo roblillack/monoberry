@@ -6,10 +6,21 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 using System.Text;
+using Mono.Cecil;
 using BlackBerry.ApplicationDescriptor;
 
 namespace MonoBerry.Tool
 {
+	public enum TargetFramework
+	{
+		UNKNOWN,
+		NET_2_0,
+		NET_3_0,
+		NET_3_5,
+		NET_4_0,
+		NET_4_5
+	}
+
 	public class Package : Command
 	{
 		public override string Name {
@@ -20,45 +31,66 @@ namespace MonoBerry.Tool
 			get { return "Packages a Mono Assembly as BlackBerry Archive."; }
 		}
 
-		private static Assembly LoadAssembly (string name)
+		static TargetFramework GetTargetFramework (Assembly assembly)
 		{
+			var attr = GetAttribute<System.Runtime.Versioning.TargetFrameworkAttribute> (assembly);
+			switch (attr != null ? attr.FrameworkName : null) {
+			case ".NETFramework,Version=v4.5":
+				return TargetFramework.NET_4_5;
+			case ".NETFramework,Version=v4.0":
+				return TargetFramework.NET_4_0;
+			}
+
+			if (assembly.ImageRuntimeVersion.StartsWith ("v2.")) {
+				return TargetFramework.NET_2_0;
+			} else if (assembly.ImageRuntimeVersion.StartsWith ("v4.")) {
+				return TargetFramework.NET_4_0;
+			}
+
+			return TargetFramework.UNKNOWN;
+		}
+
+		string ResolveDependency (AssemblyNameReference assemblyNameReference)
+		{
+			Assembly assembly;
+
 			try {
-				return Assembly.LoadFile (name + ".dll");
+				assembly =  Assembly.LoadFrom (assemblyNameReference.Name + ".dll");
 			} catch (FileNotFoundException) {
-				return Assembly.Load (name);
+				try {
+					assembly = Assembly.Load (assemblyNameReference.FullName);
+				} catch {
+					assembly = null;
+				}
 			}
+
+			if (assembly == null) {
+				return null;
+			}
+
+			return assembly.CodeBase.StartsWith ("file://") ? assembly.CodeBase.Substring (7) : assembly.CodeBase;
 		}
 
-		private static Assembly LoadAssembly (AssemblyName name)
+		ISet<string> ResolveDependencies (string assemblyFile, ISet<string> assemblies = null)
 		{
-			try {
-				return LoadAssembly (name.Name);
-			} catch {
-				return Assembly.Load (name);
+			if (assemblies == null) {
+				assemblies = new HashSet<string> ();
+			} else if (assemblyFile == null || assemblies.Contains (assemblyFile)) {
+				return assemblies;
 			}
+
+			assemblies.Add (assemblyFile);
+
+			var assDef = AssemblyDefinition.ReadAssembly (assemblyFile);
+			foreach (var i in assDef.MainModule.AssemblyReferences) {
+				ResolveDependencies (ResolveDependency (i), assemblies);
+			}
+
+
+			return assemblies;
 		}
 
-		private static void LoadDependencies (Assembly assembly, ISet<Assembly> assemblies)
-		{
-			if (assemblies.Contains (assembly)) {
-				return;
-			}
-
-			assemblies.Add (assembly);
-			Console.WriteLine ("Adding {0}", assembly.FullName);
-			foreach (var i in assembly.GetReferencedAssemblies ()) {
-				/*var ignored = new HashSet<string> (new string[]{"Mono.Security", "System.Configuration"});
-				if (ignored.Contains (i.Name)) {
-					continue;
-				}*/
-				Console.WriteLine (" - {0}", i.Name);
-				//assemblies.Add (LoadAssembly (i.Name));
-				//LoadDependencies (LoadAssembly (i.Name), assemblies);
-				LoadDependencies (LoadAssembly (i), assemblies);
-			}
-		}
-
-		private static T GetAttribute<T> (Assembly assembly) where T : Attribute
+		static T GetAttribute<T> (Assembly assembly) where T : Attribute
 		{
 			foreach (var i in GetAttributes<T> (assembly)) {
 				return i;
@@ -67,7 +99,7 @@ namespace MonoBerry.Tool
 			return (T)null;
 		}
 
-		private static IEnumerable<T> GetAttributes<T> (Assembly assembly) where T : Attribute
+		static IEnumerable<T> GetAttributes<T> (Assembly assembly) where T : Attribute
 		{
 			foreach (var i in assembly.GetCustomAttributes (false)) {
 				if (i.GetType ().Namespace == typeof (T).Namespace &&
@@ -80,7 +112,7 @@ namespace MonoBerry.Tool
 			}
 		}
 
-		private static string GetAttributeValue<T> (Assembly assembly) where T : Attribute
+		static string GetAttributeValue<T> (Assembly assembly) where T : Attribute
 		{
 			foreach (var i in assembly.GetCustomAttributes (false)) {
 				if (i.GetType ().Namespace == typeof (T).Namespace &&
@@ -92,7 +124,7 @@ namespace MonoBerry.Tool
 			return null;
 		}
 
-		private static string UpPath (string path, int times = 1)
+		static string UpPath (string path, int times = 1)
 		{
 			for (int i = 0; i < times; i++) {
 				path = Path.GetDirectoryName (path);
@@ -103,17 +135,20 @@ namespace MonoBerry.Tool
 		public void CreateAppDescriptor (string assemblyFile, Architecture arch, bool devMode = true)
 		{
 			var assembly = Assembly.LoadFile (assemblyFile);
+			var ver = GetTargetFramework (assembly);
+
 			Console.WriteLine ("Assembly: {0}", assembly.Location);
-			Console.WriteLine ("Architecture: {0}", arch);
+			Console.WriteLine ("Assembly Runtime Version: {0}", assembly.ImageRuntimeVersion);
+			Console.WriteLine ("Assembly Target Framework: {0}", ver);
+			Console.WriteLine ("MonoBerry Target Architecture: {0}", arch);
 			Console.WriteLine ("Path: {0}", Directory.GetParent (assembly.Location));
-			Directory.SetCurrentDirectory (Directory.GetParent (assembly.Location).FullName);
 
-			ISet<Assembly> deps = new HashSet<Assembly> ();
-			LoadDependencies (assembly, deps);
-
-			foreach (var i in deps) {
-				Console.WriteLine ("- Location: {0}", i.Location);
+			if (ver != TargetFramework.NET_4_5 && ver != TargetFramework.NET_4_0) {
+				throw new ArgumentException (String.Format ("Target Framework {0} not compatible with MonoBerry! Please compile for v4.5",
+					ver));
 			}
+
+			Directory.SetCurrentDirectory (Directory.GetParent (assembly.Location).FullName);
 
 			var id = GetAttributeValue<ApplicationIdentifierAttribute> (assembly);
 			if (id == null || id.Length < 10) {
@@ -185,22 +220,21 @@ namespace MonoBerry.Tool
 				xml.WriteEndElement ();
 
 				string monopath = null;
-				string monoplat = "4.0";
-				foreach (var i in deps) {
-					string path = null;
+				foreach (var path in ResolveDependencies (assemblyFile)) {
 
-					if (Path.GetFileName (i.Location) == "mscorlib.dll") {
-						monopath = UpPath (i.Location, 4);
-						monoplat = i.ImageRuntimeVersion.StartsWith ("v2.") ? "2.0" : "4.0";
-						path = Path.Combine (Application.Configuration.Location, "lib", "mono", monoplat, "mscorlib.dll");						                  
+					var p = path;
+					if (Path.GetFileName (path) == "mscorlib.dll") {
+						monopath = UpPath (path, 4);
+						p = Path.Combine (Application.Configuration.Location, "lib", "mscorlib.dll");						                  
 					}
 
+					Console.WriteLine ("- {0}", p);
 					xml.WriteStartElement ("asset");
-					xml.WriteAttributeString ("path", path ?? i.Location);
-					xml.WriteString ("lib/" + Path.GetFileName (i.Location));
+					xml.WriteAttributeString ("path", p);
+					xml.WriteString ("lib/" + Path.GetFileName (p));
 					xml.WriteEndElement ();
 
-					var cfg = (path ?? i.Location) + ".config";
+					var cfg = path + ".config";
 					if (File.Exists (cfg)) {
 						Console.Out.WriteLine ("- Adding assembly config from {0}", cfg);
 						xml.WriteStartElement ("asset");
@@ -210,7 +244,7 @@ namespace MonoBerry.Tool
 					}
 				}
 
-				var machinecfg = Path.Combine (monopath, "etc", "mono", monoplat, "machine.config");
+				var machinecfg = Path.Combine (monopath, "etc", "mono", "4.0", "machine.config");
 				if (monopath != null && File.Exists (machinecfg)) {
 					Console.Out.WriteLine ("- Adding machine config from {0}", machinecfg);
 					xml.WriteStartElement ("asset");
