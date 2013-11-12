@@ -48,24 +48,24 @@ release:	all
 	@env COPYFILE_DISABLE=true tar c target install.sh README.md LICENSE | gzip -9 > ${RELEASE_NAME}
 	@du -sh ${RELEASE_NAME}
 
-libs:	${TARGET}/lib/mono/4.0/libblackberry.dll ${TARGET}/lib/mono/4.0/libappdesc.dll
+libs:	${TARGET}/lib/libblackberry.dll ${TARGET}/lib/libappdesc.dll
 
-${TARGET}/lib/mono/4.0/libappdesc.dll: libappdesc/libappdesc.csproj libappdesc/*.cs
+${TARGET}/lib/libappdesc.dll: libappdesc/libappdesc.csproj libappdesc/*.cs
 	@echo Building libappdesc ...
 	@xbuild $< /p:Configuration=Release > /dev/null
-	@mkdir -p ${TARGET}/lib/mono/4.0
-	@cp libappdesc/bin/Release/*.dll target/lib/mono/4.0
+	@mkdir -p ${TARGET}/lib
+	@cp libappdesc/bin/Release/*.dll target/lib
 
-${TARGET}/lib/mono/4.0/libblackberry.dll: libblackberry/libblackberry.csproj libblackberry/*.cs
+${TARGET}/lib/libblackberry.dll: libblackberry/libblackberry.csproj libblackberry/*.cs
 	@echo Building libblackberry ...
 	@xbuild $< /p:Configuration=Release > /dev/null
-	@mkdir -p ${TARGET}/lib/mono/4.0
-	@cp libblackberry/bin/Release/*.dll target/lib/mono/4.0
+	@mkdir -p ${TARGET}/lib
+	@cp libblackberry/bin/Release/*.dll target/lib
 
 #helloworld: helloworld/*.cs helloworld/*.xml
 #	@xbuild helloworld/helloworld.csproj /p:Configuration=Release
 
-mono:	${TARGET}/lib/mono/2.0/mscorlib.dll ${TARGET}/lib/mono/4.0/mscorlib.dll ${TARGET}/target/armle-v7/bin/mono ${TARGET}/target/armle-v7/lib/libgdiplus.so.0 ${TARGET}/target/x86/bin/mono
+mono:	${TARGET}/lib/mscorlib.dll ${TARGET}/target/armle-v7/bin/mono ${TARGET}/target/armle-v7/lib/libgdiplus.so.0 ${TARGET}/target/x86/bin/mono
 
 ${TARGET}/target/x86/bin/mono: ${MONOSRC}/autogen.sh
 	echo "SKIPPING X86 BUILD -- NO SIMULATOR SUPPORT RIGHT NOW."
@@ -163,14 +163,12 @@ ${TARGET}/target/armle-v7/bin/mono: ${MONOSRC}/autogen.sh
 	mkdir -p `dirname $@`
 	install ${MONOSRC}/mono/mini/mono $@
 
-${TARGET}/lib/mono/2.0/mscorlib.dll: ${MONOSRC}/autogen.sh
-	cd ${MONOSRC} && ./autogen.sh && make
-	mkdir -p `dirname $@`
-	install ${MONOSRC}/mcs/class/lib/net_2_0/mscorlib.dll $@
+lib: ${TARGET}/lib/mscorlib.dll
 
-${TARGET}/lib/mono/4.0/mscorlib.dll: ${TARGET}/lib/mono/2.0/mscorlib.dll
+${TARGET}/lib/mscorlib.dll: ${MONOSRC}/autogen.sh
+	cd ${MONOSRC} && ( ./autogen.sh || ./autogen.sh ) && make
 	mkdir -p `dirname $@`
-	install ${MONOSRC}/mcs/class/lib/net_4_0/mscorlib.dll $@
+	install ${MONOSRC}/mcs/class/lib/net_4_5/mscorlib.dll $@
 
 ${MONOSRC}/autogen.sh: submodules
 glib/autogen.sh: submodules
@@ -179,5 +177,8 @@ libgdiplus/autogen.sh: submodules
 
 submodules: .gitmodules
 	git submodule update --init --recursive
+	
+reset-mono:
+	( cd mono && git clean -xfd && git reset --hard )
 
 .PHONY: clean all install glib-arm glib-x86 libgdiplus-arm libgdiplus-x86
