@@ -220,7 +220,7 @@ namespace MonoBerry.Tool
 				xml.WriteEndElement ();
 
 				string monopath = null;
-				foreach (var path in ResolveDependencies (assemblyFile)) {
+				foreach (var path in ResolveDependencies (assembly.Location)) {
 
 					var p = path;
 					if (Path.GetFileName (path) == "mscorlib.dll") {
