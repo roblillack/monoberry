@@ -163,7 +163,7 @@ ${TARGET}/target/armle-v7/bin/mono: ${MONOSRC}/autogen.sh
 	mkdir -p `dirname $@`
 	install ${MONOSRC}/mono/mini/mono $@
 
-lib: ${TARGET}/lib/mscorlib.dll
+mono-lib: ${TARGET}/lib/mscorlib.dll
 
 ${TARGET}/lib/mscorlib.dll: ${MONOSRC}/autogen.sh
 	cd ${MONOSRC} && ( ./autogen.sh || ./autogen.sh ) && make
@@ -179,6 +179,9 @@ submodules: .gitmodules
 	git submodule update --init --recursive
 	
 reset-mono:
-	( cd mono && git clean -xfd && git reset --hard )
+	( cd mono && git clean -xfd && git reset --hard HEAD )
+
+reset-glib:
+	( cd glib && git clean -xfd && git reset --hard HEAD )
 
 .PHONY: clean all install glib-arm glib-x86 libgdiplus-arm libgdiplus-x86
