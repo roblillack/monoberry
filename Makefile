@@ -43,7 +43,7 @@ clean:
 		libappdesc/bin libappdesc/obj\
 		libblackberry/bin libblackberry/obj
 	@for i in ${SUBPROJECTS}; do\
-		cd "$$i" && test -r Makefile && make clean && cd ..;\
+		cd "$$i" 2> /dev/null && test -r Makefile && make clean && cd ..;\
 	done || true
 
 install:
