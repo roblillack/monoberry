@@ -32,9 +32,11 @@ platform. The project consists of three parts:
 
 ###### Mac OS X ######
 
-* Install XCode and the commandline tools
-* Install the BlackBerry 10 Native SDK
-* Install Mono
+* Install [Xcode](https://itunes.apple.com/de/app/xcode/id497799835) and the command-line tools
+* Install the [BlackBerry 10 Native SDK](http://developer.blackberry.com/native/download/)
+* Install [Mono](http://go-mono.com/mono-downloads/)
+* Install some more build requirements using [homebrew](http://brew.sh/):
+  `brew install autoconf automake libtool git`
 * Run `make && sudo make install`
 
 ###### Linux ######
@@ -44,7 +46,7 @@ adaptable to other distributions.
 
 * Install the BlackBerry 10 Native SDK
 * Install some build requirements, including Mono:
-  `sudo apt-get install build-essential mono-complete autoconf libtool gettext openjdk-7-jre`
+  `sudo apt-get install build-essential mono-complete libmono-cecil-cil-dev git autoconf libtool gettext openjdk-7-jre`
 * Run `make && sudo make install`
 
 ##### References #####
