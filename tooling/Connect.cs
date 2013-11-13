@@ -18,9 +18,9 @@ namespace MonoBerry.Tool
 		public override void Execute (IList<string> parameters)
 		{
 			var device = GetDevice (parameters);
-			var cmd = String.Format ("{0}/usr/bin/blackberry-connect {1} -password {2} " +
+			var cmd = String.Format ("{0} {1} -password {2} " +
 			                         "-sshPublicKey {3}",
-			                         Application.Configuration.QNXHostPath,
+									 Application.GetToolPath ("blackberry-connect"),
 			                         device.IP,
 			                         device.Password,
 			                         Application.Configuration.SSHPublicKey);

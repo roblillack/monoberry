@@ -24,9 +24,9 @@ namespace MonoBerry.Tool
 				throw new Error (String.Format ("Unknown file format: {0}", file));
 			}
 		
-			var cmd = String.Format ("{0}/usr/bin/blackberry-nativepackager {1} " +
+			var cmd = String.Format ("{0} {1} " +
 			                         "-installApp -launchApp -device {2} -password {3}",
-			                         Application.Configuration.QNXHostPath,
+									 Application.GetToolPath ("blackberry-nativepackager"),
 			                         file,
 			                         device.IP,
 			                         device.Password);

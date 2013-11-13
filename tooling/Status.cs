@@ -16,7 +16,7 @@ namespace MonoBerry.Tool
 		public override void Execute (IList<string> parameters)
 		{
 			Console.WriteLine ("{0} version: {1}", MonoBerry.NAME, MonoBerry.VERSION);
-			Console.WriteLine ("Native SDK Location: {0}", Application.Configuration.NativeSDKPath);
+			Console.WriteLine ("NDK Tools Dir: {0}", Application.Configuration.NDKToolsDir ?? "-");
 			Console.WriteLine ("MonoBerry Installation Location: {0}", Application.Configuration.Location);
 		}
 	}

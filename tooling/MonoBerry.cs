@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Collections;
+using System.IO;
 
 namespace MonoBerry.Tool
 {
@@ -63,6 +64,15 @@ namespace MonoBerry.Tool
 
 		public void Execute (Type cmd) {
 			Execute (cmd, new List<string> ());
+		}
+
+		public string GetToolPath (string tool)
+		{
+			if (Configuration.NDKToolsDir == null) {
+				return tool;
+			} else {
+				return Path.Combine (Configuration.NDKToolsDir, tool);
+			}
 		}
 
 		public T GetCommand<T> ()

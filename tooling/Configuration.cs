@@ -22,9 +22,7 @@ namespace MonoBerry.Tool
 		string configFile;
 		IniConfigSource configSource;
 
-		public string NativeSDKPath { get { return Get ("nativesdk"); } }
-		public string QNXHostPath { get { return Get ("qnx_host_dir"); } }
-		public string QNXTargetPath { get { return Get ("qnx_target_dir"); } }
+		public string NDKToolsDir { get { return Get ("ndk_tools_dir"); } }
 		public string Location { get { return Get ("location"); } }
 		public string SSHPublicKey { get { return Get ("public_key"); } }
 		public string SSHPrivateKey { get { return Get ("private_key"); } }
@@ -58,50 +56,56 @@ namespace MonoBerry.Tool
 			}
 		}
 
-		private string FindNativeSDK ()
+		string FindNDKToolsDir ()
 		{
-			foreach (var i in new string[] { "/Applications/bbndk",
-                                                         "/Developer/SDKs/bbndk-10.0.4-beta",
-                                                         "/opt/bbndk" }) {
-				if (Directory.Exists (i) && File.Exists (Path.Combine (i, "bbndk-env.sh"))) {
+			// Check PATH
+			foreach (var i in Environment.GetEnvironmentVariable ("PATH").Split (':')) {
+				if (File.Exists (Path.Combine (i, "blackberry-nativepackager"))) {
 					return i;
 				}
 			}
 
-			throw new Exception ("Unable to find BlackBerry Native SDK. Please speficy in " + ConfigFile);
+			// Look NDK installation
+			foreach (var i in new string[] {
+				Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.Personal), "bbndk"),
+				"/Applications/Momentics.app",
+				"/Applications/bbndk",
+                "/Developer/SDKs/bbndk-10.0.4-beta",
+                "/opt/bbndk" }) {
+				if (!Directory.Exists (i)) {
+					continue;
+				}
+
+				foreach (var e in Directory.EnumerateFiles (i, "bbndk-env_*.sh")) {
+					var hostDir = GetHostDir (e);
+					if (hostDir != null && File.Exists (Path.Combine (hostDir, "usr", "bin", "blackberry-nativepackager"))) {
+						return Path.Combine (hostDir, "usr", "bin");
+					}
+				}
+			}
+
+			throw new Exception ("Unable to find BlackBerry Native SDK tools. Please define 'ndk_tools_dir' in " + ConfigFile);
 		}
 
-		private string FindQNXHost ()
+		string GetHostDir (string filename)
 		{
-			var file = new StreamReader (Path.Combine (NativeSDKPath, "bbndk-env.sh"));
+			if (!File.Exists (filename)) {
+				return null;
+			}
+			var file = new StreamReader (filename);
 			var rx = new Regex("^QNX_HOST=\"?(.*?)\"?$");
 			string line;
 			while ((line = file.ReadLine()) != null) {
 				var match = rx.Match (line);
 				if (match.Success) {
-					return match.Groups [1].Value;
+					return match.Groups [1].Value.Replace ("$BASE_DIR", Path.GetDirectoryName (filename));
 				}
 			}
 
-			throw new Exception ("Unable to find QNX host directory. Please specify in " + ConfigFile);
+			return null;
 		}
 
-		private string FindQNXTarget ()
-		{
-			var file = new StreamReader (Path.Combine (NativeSDKPath, "bbndk-env.sh"));
-			var rx = new Regex("^QNX_TARGET=\"?(.*)\"?$");
-			string line;
-			while ((line = file.ReadLine()) != null) {
-				var match = rx.Match (line);
-				if (match.Success) {
-					return match.Groups [1].Value;
-				}
-			}
-			
-			throw new Exception ("Unable to find QNX host directory. Please specify in " + ConfigFile);
-		}
-
-		private string FindLocation ()
+		string FindLocation ()
 		{
 			var assemblyLoc = typeof (MonoBerry).Assembly.Location;
 			if (assemblyLoc == null || assemblyLoc.Length == 0) {
@@ -117,7 +121,7 @@ namespace MonoBerry.Tool
 			return Path.GetFullPath (Path.Combine (path, ".."));
 		}
 
-		private string ReadConfigSetting (string section, string key)
+		string ReadConfigSetting (string section, string key)
 		{
 			if (configSource == null || section == null || key == null) {
 				return null;
@@ -134,9 +138,7 @@ namespace MonoBerry.Tool
 			if (retval == null && section == DEFAULT_SECTION) {
 				switch (key) {
 				case "location": return FindLocation ();
-				case "nativesdk": return FindNativeSDK ();
-				case "qnx_host_dir": return FindQNXHost ();
-				case "qnx_target_dir": return FindQNXTarget ();
+				case "ndk_tools_dir": return FindNDKToolsDir ();
 				case "debug_token": return Path.Combine (DefaultConfigDir, "debugtoken.bar");
 				case "private_key": return Path.Combine (DefaultConfigDir, "id_rsa");
 				case "public_key": return Path.Combine (DefaultConfigDir, "id_rsa.pub");

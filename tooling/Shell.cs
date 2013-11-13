@@ -69,9 +69,9 @@ namespace MonoBerry.Tool
 
 		void SetupDaemon ()
 		{
-			var cmd = String.Format ("{0}/usr/bin/blackberry-connect {1} -password {2} " +
+			var cmd = String.Format ("{0} {1} -password {2} " +
 			                         "-sshPublicKey {3}",
-			                         Application.Configuration.QNXHostPath,
+									 Application.GetToolPath ("blackberry-connect"),
 			                         dev.IP,
 			                         dev.Password,
 			                         Application.Configuration.SSHPublicKey);

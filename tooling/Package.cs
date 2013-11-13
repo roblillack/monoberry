@@ -319,9 +319,9 @@ namespace MonoBerry.Tool
 			while (pw.IsEmpty ()) {
 				pw = Extensions.ReadPassword ("CSK Password (will not echo): ");
 			}
-			var cmd = String.Format ("{0}/usr/bin/blackberry-nativepackager -package {1}.bar {2} " +
+			var cmd = String.Format ("{0} -package {1}.bar {2} " +
 			                         "-target bar -sign -storepass \"{3}\"",
-			                         Application.Configuration.QNXHostPath,
+				                     Application.GetToolPath ("blackberry-nativepackager"),
 			                         appName,
 			                         "app-descriptor.xml",
 			                         pw);
