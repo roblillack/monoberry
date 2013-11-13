@@ -24,6 +24,9 @@ endif
 VERSION:=$(or $(shell git describe --exact-match 2>/dev/null), HEAD)
 RELEASE_NAME:=$(shell echo ${PROJECT}-${VERSION}.tgz)
 
+LDFLAGS_ARM="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib"
+LDFLAGS_X86="-L${NDK}/target/qnx6/x86/lib -L${NDK}/target/qnx6/x86/usr/lib"
+
 all:	cli mono libs
 
 cli:	${TARGET}/tool/monoberry.exe
@@ -71,27 +74,19 @@ ${TARGET}/lib/libblackberry.dll: libblackberry/libblackberry.csproj libblackberr
 #helloworld: helloworld/*.cs helloworld/*.xml
 #	@xbuild helloworld/helloworld.csproj /p:Configuration=Release
 
-mono:	${TARGET}/lib/mscorlib.dll ${TARGET}/target/armle-v7/bin/mono ${TARGET}/target/armle-v7/lib/libgdiplus.so.0 ${TARGET}/target/x86/bin/mono
-
-${TARGET}/target/x86/bin/mono: ${MONOSRC}/autogen.sh
-	echo "SKIPPING X86 BUILD -- NO SIMULATOR SUPPORT RIGHT NOW."
-	#cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/x86/lib -L${NDK}/target/qnx6/x86/usr/lib" ./autogen.sh --host=i486-pc-nto-qnx8.0.0 --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
-	#mkdir -p `dirname $@`
-	#install ${MONOSRC}/mono/mini/mono $@
+mono:	${TARGET}/lib/mscorlib.dll ${TARGET}/target/armle-v7/bin/mono ${TARGET}/target/armle-v7/lib/libgdiplus.so.0 ${TARGET}/target/x86/bin/mono ${TARGET}/target/x86/lib/libgdiplus.so.0
 
 libffi-arm: libffi/${ARCH_ARM}/.libs/libffi.a
 libffi/${ARCH_ARM}/.libs/libffi.a: libffi/configure
 	cd libffi &&\
 	. ${NDK}/bbndk-env.sh &&\
-	env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" \
-	./configure --host=${ARCH_ARM} && make
+	env LDFLAGS=${LDFLAGS_ARM} ./configure --host=${ARCH_ARM} && make
 
 libffi-x86: libffi/${ARCH_X86}/.libs/libffi.a
 libffi/${ARCH_X86}/.libs/libffi.a: libffi/configure
 	cd libffi &&\
 	. ${NDK}/bbndk-env.sh &&\
-	env LDFLAGS="-L${NDK}/target/qnx6/x86/lib -L${NDK}/target/qnx6/x86/usr/lib" \
-	./configure --host=${ARCH_X86} && make
+	env LDFLAGS=${LDFLAGS_X86} ./configure --host=${ARCH_X86} && make
 
 glib-x86: tmp/glib-x86
 tmp/glib-x86: glib/autogen.sh libffi/${ARCH_X86}/.libs/libffi.a
@@ -159,15 +154,33 @@ ${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-x86
 	mkdir -p `dirname $@`
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
-rebuild-mono-arm:
-	cd ${MONOSRC} &&\
-		. ${NDK}/bbndk-env.sh &&\
-		env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" make
+### MONO RUNTIME ##############################################################
 
 ${TARGET}/target/armle-v7/bin/mono: ${MONOSRC}/autogen.sh
-	cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS="-L${NDK}/target/qnx6/armle-v7/lib -L${NDK}/target/qnx6/armle-v7/usr/lib" ./autogen.sh --host=${ARCH_ARM} --with-xen-opt=no --with-large-heap=no --disable-mcs-build --enable-small-config=yes && make clean && make
+	cd ${MONOSRC} &&\
+		. ${NDK}/bbndk-env.sh &&\
+		env LDFLAGS=${LDFLAGS_ARM} ./autogen.sh --host=${ARCH_ARM} --with-xen-opt=no\
+			--with-large-heap=no --disable-mcs-build --enable-small-config=yes &&\
+		make clean && make
 	mkdir -p `dirname $@`
 	install ${MONOSRC}/mono/mini/mono $@
+
+rebuild-mono-arm:
+	cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS=${LDFLAGS_ARM} make
+		
+${TARGET}/target/x86/bin/mono: ${MONOSRC}/autogen.sh
+	cd ${MONOSRC} &&\
+		. ${NDK}/bbndk-env.sh &&\
+		env LDFLAGS=${LDFLAGS_X86} ./autogen.sh --host=${ARCH_X86} --with-xen-opt=no\
+			--with-large-heap=no --disable-mcs-build --enable-small-config=yes &&\
+		make clean && make
+	mkdir -p `dirname $@`
+	install ${MONOSRC}/mono/mini/mono $@
+
+rebuild-mono-x86:
+	cd ${MONOSRC} && . ${NDK}/bbndk-env.sh && env LDFLAGS=${LDFLAGS_X86} make
+
+### MONO CORE LIBRARY #########################################################
 
 mono-lib: ${TARGET}/lib/mscorlib.dll
 
@@ -182,7 +195,7 @@ libffi/configure: submodules
 libgdiplus/autogen.sh: submodules
 
 submodules: .gitmodules
-	git submodule update --init --recursive
+	@git submodule update --init --recursive
 	
 reset-subprojects:
 	@for i in ${SUBPROJECTS}; do\
