@@ -7,6 +7,8 @@ BASE:=$(shell pwd)
 ARCH_ARM:=arm-unknown-nto-qnx8.0.0eabi
 ARCH_X86:=i486-pc-nto-qnx8.0.0
 
+SUBPROJECTS=glib libffi libgdiplus mono opentk
+
 ifeq (${SYSTEM}, Darwin)
   DESTDIR=/Developer/SDKs/MonoBerry
   NDK=/Applications/bbndk
@@ -37,8 +39,12 @@ target/tool/monoberry.exe: tooling/tool.csproj tooling/*.cs
 	@cp tooling/bin/Release/*.exe tooling/bin/Release/*.dll tooling/monoberry.sh ${TARGET}/tool
 
 clean:
-	@rm -rf tooling/bin/ target/ libblackberry/bin
-	@rm -f ${PREFIX}/bin/monoberry
+	@rm -rf target tmp\
+		libappdesc/bin libappdesc/obj\
+		libblackberry/bin libblackberry/obj
+	@for i in ${SUBPROJECTS}; do\
+		cd "$$i" && test -r Makefile && make clean && cd ..;\
+	done || true
 
 install:
 	@sh install.sh
@@ -178,10 +184,9 @@ libgdiplus/autogen.sh: submodules
 submodules: .gitmodules
 	git submodule update --init --recursive
 	
-reset-mono:
-	( cd mono && git clean -xfd && git reset --hard HEAD )
-
-reset-glib:
-	( cd glib && git clean -xfd && git reset --hard HEAD )
+reset-subprojects:
+	@for i in ${SUBPROJECTS}; do\
+		cd "$$i" && git clean -xfd && git reset --hard HEAD && cd ..;\
+	done || true
 
 .PHONY: clean all install glib-arm glib-x86 libgdiplus-arm libgdiplus-x86
