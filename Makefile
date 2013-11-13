@@ -21,8 +21,8 @@ else
   ACLOCAL_FLAGS=
 endif
 
-TREE:=$(or $(shell git for-each-ref --sort='-*authordate' --format='%(tag)' refs/tags --count=1),HEAD)
-RELEASE_NAME:=$(shell echo ${PROJECT}-${TREE}.tgz)
+VERSION:=$(or $(shell git describe --exact-match 2>/dev/null), HEAD)
+RELEASE_NAME:=$(shell echo ${PROJECT}-${VERSION}.tgz)
 
 all:	cli mono libs
 
@@ -50,7 +50,7 @@ install:
 	@sh install.sh
 
 release:	all
-	@echo Building release ${TREE} ...
+	@echo Building release ${VERSION} ...
 	@env COPYFILE_DISABLE=true tar c target install.sh README.md LICENSE | gzip -9 > ${RELEASE_NAME}
 	@du -sh ${RELEASE_NAME}
 
