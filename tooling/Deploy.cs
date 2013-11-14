@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 
 namespace MonoBerry.Tool
 {
@@ -21,7 +20,7 @@ namespace MonoBerry.Tool
 			var device = GetDevice (parameters);
 			
 			if (!file.EndsWith (".bar")) {
-				throw new Error (String.Format ("Unknown file format: {0}", file));
+				throw new CommandErrorException (String.Format ("Unknown file format: {0}", file));
 			}
 		
 			var cmd = String.Format ("{0} {1} " +
@@ -33,18 +32,18 @@ namespace MonoBerry.Tool
 			Run (cmd);
 		}
 		
-		private static void Run (string cmd)
+		static void Run (string cmd)
 		{
 			try {
 				using (Process proc = Process.Start ("/bin/sh", String.Format ("-c '{0}'", cmd))) {
 					proc.WaitForExit();
 				}
 			} catch (Exception e) {
-				throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+				throw new CommandErrorException (String.Format ("Error running command {0}: {1}", cmd, e.Message));
 			}
 		}
 		
-		private Device GetDevice (IList<string> parameters)
+		Device GetDevice (IList<string> parameters)
 		{
 			var devs = Application.Configuration.GetDevices ();
 			
@@ -52,13 +51,17 @@ namespace MonoBerry.Tool
 				var e = devs.Values.GetEnumerator ();
 				e.MoveNext ();
 				return e.Current;
-			} else if (devs.Count == 0) {
-				throw new Error ("No devices configured.");
-			} else if (parameters.Count == 2) {
+			}
+
+			if (devs.Count == 0) {
+				throw new CommandErrorException ("No devices configured.");
+			}
+
+			if (parameters.Count == 2) {
 				return devs [parameters [1]];
 			}
 			
-			throw new Error ("Please specify a device.");
+			throw new CommandErrorException ("Please specify a device.");
 		}
 	}
 	

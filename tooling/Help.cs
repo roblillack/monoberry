@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Linq;
-using System.Reflection;
 
 namespace MonoBerry.Tool
 {
@@ -17,15 +15,15 @@ namespace MonoBerry.Tool
 		
 		public override void Execute (IList<string> parameters)
 		{
-			Console.WriteLine ("{0} version {1}", MonoBerry.NAME, MonoBerry.VERSION);
-			if (MonoBerry.DESCRIPTION != null) {
-				Console.WriteLine (MonoBerry.DESCRIPTION);
+			Console.WriteLine ("{0} version {1}", MonoBerryApp.NAME, MonoBerryApp.VERSION);
+			if (MonoBerryApp.DESCRIPTION != null) {
+				Console.WriteLine (MonoBerryApp.DESCRIPTION);
 			}
-			if (MonoBerry.COPYRIGHT != null) {
-				Console.WriteLine (MonoBerry.COPYRIGHT);
+			if (MonoBerryApp.COPYRIGHT != null) {
+				Console.WriteLine (MonoBerryApp.COPYRIGHT);
 			}
 			Console.WriteLine ();
-			Console.WriteLine ("Usage: {0} <verb> [parameters]", MonoBerry.COMMAND);
+			Console.WriteLine ("Usage: {0} <verb> [parameters]", MonoBerryApp.COMMAND);
 			Console.WriteLine ();
 			Console.WriteLine ("Available verbs:");
 			foreach (Command i in Application.Commands) {

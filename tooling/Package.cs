@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Xml;
 using System.Text;
-using Mono.Cecil;
+using System.Xml;
 using BlackBerry.ApplicationDescriptor;
+using Mono.Cecil;
 
 namespace MonoBerry.Tool
 {
@@ -43,14 +42,16 @@ namespace MonoBerry.Tool
 
 			if (assembly.ImageRuntimeVersion.StartsWith ("v2.")) {
 				return TargetFramework.NET_2_0;
-			} else if (assembly.ImageRuntimeVersion.StartsWith ("v4.")) {
+			}
+
+			if (assembly.ImageRuntimeVersion.StartsWith ("v4.")) {
 				return TargetFramework.NET_4_0;
 			}
 
 			return TargetFramework.UNKNOWN;
 		}
 
-		string ResolveDependency (AssemblyNameReference assemblyNameReference)
+		static string ResolveDependency (AssemblyNameReference assemblyNameReference)
 		{
 			Assembly assembly;
 
@@ -187,7 +188,7 @@ namespace MonoBerry.Tool
 				var permissions = GetAttribute<RequestedPermissionsAttribute> (assembly);
 				if (permissions != null) {
 					foreach (var i in permissions.Functions) {
-						Console.WriteLine ("- Requested permission: {0}", i.ToString ());
+						Console.WriteLine ("- Requested permission: {0}", i);
 						xml.WriteElementString ("permission", i.GetValue ());
 					}
 				}
@@ -253,8 +254,8 @@ namespace MonoBerry.Tool
 					xml.WriteEndElement ();
 				}
 
-				foreach (var i in assembly.GetCustomAttributes (typeof (BlackBerry.ApplicationDescriptor.NativeLibraryAttribute), false)) {
-					var attr = (BlackBerry.ApplicationDescriptor.NativeLibraryAttribute)i;
+				foreach (var i in assembly.GetCustomAttributes (typeof (NativeLibraryAttribute), false)) {
+					var attr = (NativeLibraryAttribute)i;
 					if (!arch.Matches (attr.Architecture)) {
 						continue;
 					}
@@ -265,8 +266,8 @@ namespace MonoBerry.Tool
 					xml.WriteEndElement ();
 				}
 
-				foreach (var i in assembly.GetCustomAttributes (typeof (BlackBerry.ApplicationDescriptor.AssetAttribute), false)) {
-					var attr = (BlackBerry.ApplicationDescriptor.AssetAttribute)i;
+				foreach (var i in assembly.GetCustomAttributes (typeof (AssetAttribute), false)) {
+					var attr = (AssetAttribute)i;
 					Console.Out.WriteLine ("- Adding asset {0}", attr.Path);
 					xml.WriteStartElement ("asset");
 					xml.WriteAttributeString ("path", attr.Path);
@@ -329,14 +330,14 @@ namespace MonoBerry.Tool
 			Run (cmd);
 		}
 	
-		private static void Run (string cmd)
+		static void Run (string cmd)
 		{
 			try {
 				using (Process proc = Process.Start ("/bin/sh", String.Format ("-c '{0}'", cmd))) {
 					proc.WaitForExit();
 				}
 			} catch (Exception e) {
-				throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+				throw new CommandErrorException (String.Format ("Error running command {0}: {1}", cmd, e.Message));
 			}
 		}
 	}

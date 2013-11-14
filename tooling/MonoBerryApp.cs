@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Collections;
 using System.IO;
+using System.Reflection;
 
 namespace MonoBerry.Tool
 {
-	public class MonoBerry
+	public class MonoBerryApp
 	{
 		public Configuration Configuration { get; protected set; }
-		List<Command> commands = new List<Command> ();
+		readonly List<Command> commands = new List<Command> ();
 		
 		public ICollection<Command> Commands {
 			get { return commands; }
@@ -23,7 +21,7 @@ namespace MonoBerry.Tool
 					continue;
 				}
 				
-				var ctor = t.GetConstructor (System.Type.EmptyTypes);
+				var ctor = t.GetConstructor (Type.EmptyTypes);
 				if (ctor == null) {
 					continue;
 				}
@@ -68,11 +66,7 @@ namespace MonoBerry.Tool
 
 		public string GetToolPath (string tool)
 		{
-			if (Configuration.NDKToolsDir == null) {
-				return tool;
-			} else {
-				return Path.Combine (Configuration.NDKToolsDir, tool);
-			}
+			return Configuration.NDKToolsDir == null ? tool : Path.Combine (Configuration.NDKToolsDir, tool);
 		}
 
 		public T GetCommand<T> ()
@@ -86,14 +80,14 @@ namespace MonoBerry.Tool
 			throw new InvalidOperationException ();
 		}
 
-		public MonoBerry (string[] args)
+		public MonoBerryApp (string[] args)
 		{
 			Configuration = new Configuration ();
 		}
 
 		public static void Main (string[] args)
 		{
-			MonoBerry app = new MonoBerry (args);
+			var app = new MonoBerryApp (args);
 			var cmd = args.Length > 0 ? (args [0]).ToLower () : "help";
 			var parameters = new List<string> (args);
 			if (parameters.Count > 0) {
@@ -103,15 +97,15 @@ namespace MonoBerry.Tool
 			app.RegisterCommands (Assembly.GetExecutingAssembly ());
 			try {
 				app.Execute (cmd, parameters);
-			} catch (Command.Error e) {
+			} catch (Command.CommandErrorException e) {
 				Console.Error.WriteLine ("ERROR: {0}", e.Message);
 				Environment.Exit (1);
 			}
 		}
 
-		private static T ReadAttrib<T> ()
+		static T ReadAttrib<T> ()
 		{
-			foreach (var i in typeof (MonoBerry).Assembly.GetCustomAttributes (typeof (T), true)) {
+			foreach (var i in typeof (MonoBerryApp).Assembly.GetCustomAttributes (typeof (T), true)) {
 				return (T)i;
 			}
 
@@ -121,7 +115,7 @@ namespace MonoBerry.Tool
 		public static string NAME {
 			get {
 				var v = ReadAttrib<AssemblyProductAttribute> ();
-				return v == null ? typeof (MonoBerry).Name : v.Product;
+				return v == null ? typeof (MonoBerryApp).Name : v.Product;
 			}
 		}
 
@@ -141,13 +135,13 @@ namespace MonoBerry.Tool
 
 		public static string VERSION {
 			get {
-				return typeof (MonoBerry).Assembly.GetName ().Version.ToString ();
+				return typeof (MonoBerryApp).Assembly.GetName ().Version.ToString ();
 			}
 		}
 
 		public static string COMMAND {
 			get {
-				return typeof (MonoBerry).Assembly.GetName ().Name;
+				return typeof (MonoBerryApp).Assembly.GetName ().Name;
 			}
 		}
 	}

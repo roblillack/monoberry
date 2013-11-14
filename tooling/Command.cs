@@ -9,11 +9,11 @@ namespace MonoBerry.Tool
 		public abstract string Description { get; }
 		public abstract void Execute(IList<string> parameters);
 		public virtual bool IsVisible { get { return true; } }
-		public MonoBerry Application { set; get; }
+		public MonoBerryApp Application { set; get; }
 
-		public class Error : Exception
+		public class CommandErrorException : Exception
 		{
-			public Error (string msg) : base (msg) {}
+			public CommandErrorException (string msg) : base (msg) {}
 		}
 	}
 }

@@ -44,18 +44,18 @@ namespace MonoBerry.Tool
 			Run (cmd);
 		}
 
-		private static void Run (string cmd)
+		static void Run (string cmd)
 		{
 			try {
 				using (Process proc = Process.Start ("/bin/sh", String.Format ("-c '{0}'", cmd))) {
 					proc.WaitForExit();
 				}
 			} catch (Exception e) {
-				throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+				throw new CommandErrorException (String.Format ("Error running command {0}: {1}", cmd, e.Message));
 			}
 		}
 
-		private Device GetDevice (IList<string> parameters)
+		Device GetDevice (IList<string> parameters)
 		{
 			var devs = Application.Configuration.GetDevices ();
 
@@ -64,12 +64,12 @@ namespace MonoBerry.Tool
 				e.MoveNext ();
 				return e.Current;
 			} else if (devs.Count == 0) {
-				throw new Error ("No devices configured.");
+				throw new CommandErrorException ("No devices configured.");
 			} else if (parameters.Count == 2) {
 				return devs [parameters [1]];
 			}
 
-			throw new Error ("Please specify a device.");
+			throw new CommandErrorException ("Please specify a device.");
 		}
 	}
 

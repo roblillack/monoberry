@@ -47,7 +47,6 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="MonoBerry.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Help.cs" />
     <Compile Include="Status.cs" />
@@ -63,6 +62,7 @@
     <Compile Include="Shell.cs" />
     <Compile Include="Setup.cs" />
     <Compile Include="Deploy.cs" />
+    <Compile Include="MonoBerryApp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

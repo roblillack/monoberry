@@ -1,9 +1,8 @@
-using Nini.Config;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.IO;
+using System.Text.RegularExpressions;
+using Nini.Config;
 
 namespace MonoBerry.Tool
 {
@@ -19,8 +18,8 @@ namespace MonoBerry.Tool
 	{
 		static readonly string DEFAULT_SECTION = "core";
 
-		string configFile;
-		IniConfigSource configSource;
+		readonly string configFile;
+		readonly IniConfigSource configSource;
 
 		public string NDKToolsDir { get { return Get ("ndk_tools_dir"); } }
 		public string Location { get { return Get ("location"); } }
@@ -66,7 +65,7 @@ namespace MonoBerry.Tool
 			}
 
 			// Look NDK installation
-			foreach (var i in new string[] {
+			foreach (var i in new [] {
 				Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.Personal), "bbndk"),
 				"/Applications/Momentics.app",
 				"/Applications/bbndk",
@@ -87,7 +86,7 @@ namespace MonoBerry.Tool
 			throw new Exception ("Unable to find BlackBerry Native SDK tools. Please define 'ndk_tools_dir' in " + ConfigFile);
 		}
 
-		string GetHostDir (string filename)
+		static string GetHostDir (string filename)
 		{
 			if (!File.Exists (filename)) {
 				return null;
@@ -105,11 +104,11 @@ namespace MonoBerry.Tool
 			return null;
 		}
 
-		string FindLocation ()
+		static string FindLocation ()
 		{
-			var assemblyLoc = typeof (MonoBerry).Assembly.Location;
-			if (assemblyLoc == null || assemblyLoc.Length == 0) {
-				throw new Exception ("Unable to locate " + MonoBerry.NAME + " installation.");
+			var assemblyLoc = typeof (MonoBerryApp).Assembly.Location;
+			if (string.IsNullOrEmpty (assemblyLoc)) {
+				throw new Exception ("Unable to locate " + MonoBerryApp.NAME + " installation.");
 			}
 
 			var path = Path.GetDirectoryName (assemblyLoc);
@@ -150,7 +149,9 @@ namespace MonoBerry.Tool
 
 		public string Get (string absoluteKey)
 		{
-			string[] secKey = absoluteKey.Split (new char[] {'.'}, 2);
+			string[] secKey = absoluteKey.Split (new[] {
+				'.'
+			}, 2);
 			return Get (secKey.Length < 2 ? DEFAULT_SECTION : secKey [0], secKey [secKey.Length < 2 ? 0 : 1]);
 		}
 
@@ -164,7 +165,7 @@ namespace MonoBerry.Tool
 
 			foreach (var section in configSource.Configs) {
 				var sec = section as IConfig;
-				if (sec != null && sec.Name.StartsWith ("device.")) {
+				if (sec != null && sec.Name.StartsWith ("device.", StringComparison.Ordinal)) {
 					var name = sec.Name.Substring ("device.".Length);
 					Architecture arch;
 					try {

@@ -44,7 +44,7 @@ namespace MonoBerry.Tool
 					proc.WaitForExit();
 				}
 			} catch (Exception e) {
-				throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+				throw new CommandErrorException (String.Format ("Error running command {0}: {1}", cmd, e.Message));
 			}
 		}
 	}

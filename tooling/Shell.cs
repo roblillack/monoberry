@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Threading;
 
 namespace MonoBerry.Tool
@@ -10,7 +9,7 @@ namespace MonoBerry.Tool
 	{
 		Device dev;
 		volatile bool connecting;
-		List<string> errors = new List<string> ();
+		readonly List<string> errors = new List<string> ();
 
 		public override string Name {
 			get { return "shell"; }
@@ -56,14 +55,14 @@ namespace MonoBerry.Tool
 			connection.Join ();
 		}
 		
-		private static void Run (string cmd)
+		static void Run (string cmd)
 		{
 			try {
 				using (Process proc = Process.Start ("/bin/sh", String.Format ("-c '{0}'", cmd))) {
 					proc.WaitForExit();
 				}
 			} catch (Exception e) {
-				throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+				throw new CommandErrorException (String.Format ("Error running command {0}: {1}", cmd, e.Message));
 			}
 		}
 
@@ -75,7 +74,7 @@ namespace MonoBerry.Tool
 			                         dev.IP,
 			                         dev.Password,
 			                         Application.Configuration.SSHPublicKey);
-			using (Process proc = new Process ()) {
+			using (var proc = new Process ()) {
 				try {
 					var si = new ProcessStartInfo ("/bin/sh", String.Format ("-c '{0}'", cmd));
 					si.RedirectStandardOutput = true;
@@ -83,11 +82,7 @@ namespace MonoBerry.Tool
 					si.UseShellExecute = false;
 					proc.StartInfo = si;
 					proc.Start ();
-					proc.OutputDataReceived += (sender, args) => {
-						if (args.Data.Contains ("Successfully connected.")) {
-							connecting = false;
-						}
-					};
+					proc.OutputDataReceived += (sender, args) => connecting &= !args.Data.Contains ("Successfully connected.");
 					proc.BeginOutputReadLine ();
 					proc.ErrorDataReceived += (sender, args) => errors.Add (args.Data);
 					proc.BeginErrorReadLine ();
@@ -95,7 +90,7 @@ namespace MonoBerry.Tool
 					connecting = false;
 				} catch (ThreadInterruptedException) {
 				} catch (Exception e) {
-					throw new Error (String.Format ("Error running command {0}: {1}", cmd, e.Message));
+					throw new CommandErrorException (String.Format ("Error running command {0}: {1}", cmd, e.Message));
 				} finally {
 					if (!proc.HasExited) {
 						proc.Kill ();
@@ -104,7 +99,7 @@ namespace MonoBerry.Tool
 			}
 		}
 
-		private Device GetDevice (IList<string> parameters)
+		Device GetDevice (IList<string> parameters)
 		{
 			var devs = Application.Configuration.GetDevices ();
 			
@@ -112,13 +107,17 @@ namespace MonoBerry.Tool
 				var e = devs.Values.GetEnumerator ();
 				e.MoveNext ();
 				return e.Current;
-			} else if (devs.Count == 0) {
-				throw new Error ("No devices configured.");
-			} else if (parameters.Count == 1) {
+			}
+
+			if (devs.Count == 0) {
+				throw new CommandErrorException ("No devices configured.");
+			}
+
+			if (parameters.Count == 1) {
 				return devs [parameters [0]];
 			}
 			
-			throw new Error ("Please specify a device.");
+			throw new CommandErrorException ("Please specify a device.");
 		}
 	}
 	

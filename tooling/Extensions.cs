@@ -10,7 +10,7 @@ namespace MonoBerry.Tool
 	{
 		public static string Join (this IEnumerable me, string str = null)
 		{
-			StringBuilder b = new StringBuilder ();
+			var b = new StringBuilder ();
 			bool first = true;
 			foreach (var i in me) {
 				if (!first && str != null) {
@@ -31,7 +31,7 @@ namespace MonoBerry.Tool
 			if (length == -1) {
 				length = me.Length - offset;
 			}
-			T[] r = new T[length];
+			var r = new T[length];
 			Array.Copy (me, offset, r, 0, length);
 			return r;
 		}
