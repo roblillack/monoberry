@@ -123,7 +123,7 @@ tmp/glib-arm: glib/autogen.sh libffi/${ARCH_ARM}/.libs/libffi.a
 	cp -r glib/glib/*.lo glib/glib/.libs glib/glib/pcre/*.lo glib/glib/pcre/.libs $@
 
 libgdiplus-arm: ${TARGET}/target/armle-v7/lib/libgdiplus.so.0
-${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-arm
+${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh tmp/glib-arm
 	cd libgdiplus &&\
 		. ${NDK}/bbndk-env.sh &&\
 		env LIBTOOLIZE=${LIBTOOLIZE} ACLOCAL_FLAGS=${ACLOCAL_FLAGS} CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
@@ -139,7 +139,7 @@ ${TARGET}/target/armle-v7/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-arm
 	install libgdiplus/src/.libs/libgdiplus.so.0 $@
 
 libgdiplus-x86: ${TARGET}/target/x86/lib/libgdiplus.so.0
-${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh glib-x86
+${TARGET}/target/x86/lib/libgdiplus.so.0: libgdiplus/autogen.sh tmp/glib-x86
 	cd libgdiplus &&\
 		. ${NDK}/bbndk-env.sh &&\
 		env LIBTOOLIZE=${LIBTOOLIZE} ACLOCAL_FLAGS=${ACLOCAL_FLAGS} CFLAGS="-I$$QNX_TARGET/usr/include/freetype2 -I../cairo/src -I${BASE}/glib -I${BASE}/glib/glib"\
