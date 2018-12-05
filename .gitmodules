@@ -6,7 +6,7 @@
 	url = git://github.com/roblillack/libgdiplus.git
 [submodule "glib"]
 	path = glib
-	url = git://git.gnome.org/glib
+	url = git://github.com/GNOME/glib.git
 [submodule "libffi"]
 	path = libffi
 	url = git://github.com/atgreen/libffi.git
