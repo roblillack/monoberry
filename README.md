@@ -5,6 +5,12 @@
 
 _Mono for the BlackBerry 10 platform._
 
+### Update from December 2018 ###
+
+> This project is dead for many years now and will not be updated anymore. \
+> Love, \
+> —rob. ❤️
+
 ##### Summary #####
 
 * Website: http://burningsoda.com/software/monoberry/
